@@ -1,19 +1,15 @@
-const mongoose = require('mongoose'),
-    { Schema } = mongoose,
-    Point = require('../helpers/pointSchema'),
 
-rideRequestSchema = new Schema({
-    rideOrderId: {
-        type: String, trim: true, index: {
-            unique: true,
-            partialFilterExpression: { rideOrderId: { $type: "string" } }
-        }
-    },
+const mongoose = require('mongoose'),
+{ Schema } = mongoose,
+Point = require('../helpers/pointSchema'),
+
+
+estimatePriceSchema = new Schema({
     pickup_coordinates: { type: Point, index: '2dsphere', required: true},    // longitude first i.e. [longitude, latitude]
     destination_coordinates: { type: Point, index: '2dsphere', required: true},   // longitude first i.e. [longitude, latitude]
     pickup_location: { type: String, required: true },
     destination: { type: String, required: true },
-    vehicleTypeId: { type: mongoose.Schema.Types.ObjectId,  ref: "VehicleType", index: true, required: true },
+    vehicleTypeId: { type: mongoose.Schema.Types.ObjectId,  ref: "VehicleType", index: true},
     calculated_distance: String,
     calculated_raw_distance: Number, // in meters
     final_distance: String,
@@ -39,9 +35,8 @@ rideRequestSchema = new Schema({
     tripEndedBy: { type: mongoose.Schema.Types.ObjectId,  ref: "Admin", index: true },  
 }, { timestamps: true }),
 
-RideRequest = mongoose.model('RideRequest', rideRequestSchema);
 
 
+estimatedPrice = mongoose.model('EstimatedPrice', estimatePriceSchema);
 
-exports.RideRequest = RideRequest;
-
+exports.EstimatedPrice = estimatedPrice;

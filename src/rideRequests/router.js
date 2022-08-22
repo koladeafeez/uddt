@@ -31,7 +31,11 @@ router.get( '/drivers/trips/history', [ auth, accessControl.isDriver ], rideRequ
 
 /* *******************************   CUSTOMER ROUTES   ******************************* */
 // request ride
-router.post( '/', [ auth, accessControl.isCustomer ], rideRequestService.requestRide );
+router.post( '/',[ auth, accessControl.isCustomer ], rideRequestService.requestRide );
+
+//estimated price
+router.post( '/estimatedPrices',[ auth, accessControl.isCustomer ], rideRequestService.getEstimatedTripAmount );
+
 
 //fetch all ride requests made by a customer
 router.get( '/customers', [ auth, accessControl.isCustomer ], rideRequestService.fetchUserRideRequests );

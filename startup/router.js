@@ -6,7 +6,6 @@ const express = require('express'),
     adminRouter = require('../src/admins/router'),
     vehicleRouter = require('../src/vehicles/router'),
     rideRequestRouter = require('../src/rideRequests/router'),
-    smsService = require('../src/helpers/smsService'),
 vehicleTypesRouter = require('../src/vehicleTypes/router');
 
 module.exports = function (app) {
@@ -14,15 +13,9 @@ module.exports = function (app) {
     app.use(express.urlencoded({ limit:"5mb", extended: true }));
     app.use(errorHandler);                        
 
-    app.use('/', express.Router().get("/api_v1/welcome", async(req, res) => 
-    {
-        const message = 'Your 4-digit OTP is 1234 .';
-        const phone = '+2349158657513'
-        await smsService.sendSMS(phone, message);
-        res.status(200).json({ 
-        
+    app.use('/', express.Router().get("/api_v1/welcome", (req, res) => res.status(200).json({ 
         message: "Hi, I am Mopila.. and you are in my world!." })
-}));
+    ));
     app.use('/api_v1/customers', customerRouter);
     app.use('/api_v1/drivers', driverRouter);
     app.use('/api_v1/carOwners', carOwnerRouter);

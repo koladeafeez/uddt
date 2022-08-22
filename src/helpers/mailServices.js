@@ -15,8 +15,8 @@ let options = {
 let transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port: process.env.MAIL_PORT,
-    secure: false, // true for 465, false for other ports,
-    //secure : true,
+    //secure: false, // true for 465, false for other ports,
+    secure : true,
     pool: true,
     rateLimit: 20,
     //secureConnection: false,

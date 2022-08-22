@@ -2,10 +2,8 @@ require('dotenv').config();
 
 async function sendSMS(phoneNumber, smsContent) {
     const credentials = {
-        //apiKey: process.env.AFRICASTALKING_SMS_API_KEY,
-        //username: 'TME-MFB'
-        apiKey: process.env.AFRICASTALKING_SANDBOX_API_KEY,
-        username: 'koladeza'
+        apiKey: process.env.AFRICASTALKING_SMS_API_KEY,
+        username: 'Yango'
     },
     Africastalking = require('africastalking')(credentials),   
     sms = Africastalking.SMS,  

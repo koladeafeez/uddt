@@ -7,6 +7,7 @@ const _ = require('lodash'),
     pushNotification = require('../helpers/firebase-config'),
     mongoose = require('mongoose'),
     { RideRequest } = require('./model'),
+    {EstimatedPrice} = require('./estimatedPrice'),
     { Driver } = require('../drivers/model'),
     { Customer } = require('../customers/model'),
     { VehicleType } = require('../vehicleTypes/model'),
@@ -335,7 +336,28 @@ module.exports = {
     testPayment: async (req, res) => {
         const paymentStatus = await paymentHandler.mpesa(req.body.phone, req.body.amount, null);
         return res.send(paymentStatus);
-    }
+    },
+
+    getEstimatedTripAmount: async (req, res) => {
+       
+        const rideRequest = new EstimatedPrice(_.pick(req.body, variables.rideRequestFullDetails));
+
+        const matrixData = await helpers.getDistanceAndTime(rideRequest.pickup_coordinates, rideRequest.destination_coordinates);
+   
+        const tripAmountDolar = await helpers.calculateTripAmount(matrixData.distanceValue, matrixData.durationValue, "USD");
+        const tripAmountInNaira = await helpers.calculateTripAmount(matrixData.distanceValue, matrixData.durationValue, "NGN");
+
+        var prices = [
+            {"EstimatedPrice":tripAmountDolar, "CurrencyType":"USD"},
+            {"EstimatedPrice":tripAmountInNaira, "CurrencyType":"NGN"}
+            ];
+
+        return responseMessage.success("Listing estimated prices", prices, res);
+     
+
+    },
+
+
 };
 
 async function createRideRequest(rideRequest, matrixData, req, currency) {

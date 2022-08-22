@@ -1,1 +1,8 @@
 node_modules/
+uploads/
+.jshintrc
+.env
+uncaughtexceptions.log
+src/helpers/yango-302312-firebase-adminsdk.json
+src/helpers/mopila-b69b4-firebase-adminsdk-rsd2p-5323c3425a.json
+src/helpers/jango-d944e-firebase-adminsdk-xl9t1-041463e5b8.json
