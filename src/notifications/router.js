@@ -14,10 +14,10 @@ router.get('/fetchAllForCarOwner',[auth,accessControl.isCarOwner],notifyService.
 router.get('/fetchAllForCustomer',[auth,accessControl.isCustomer],notifyService.fetchForCustomer)
 
 //Fetch All recent notifications for Drivers
-router.get('/fetchAllForCustomer',[auth,accessControl.isDriver],notifyService.fetchForDrivers)
+router.get('/fetchAllForDriver',[auth,accessControl.isDriver],notifyService.fetchForDrivers)
 
 //Fetch All recent notifications for Admins
-router.get('/fetchAllForCustomer',[auth,accessControl.isAdmin],notifyService.fetchForAdmins)
+router.get('/fetchAllForAdmin',[auth,accessControl.isAdmin],notifyService.fetchForAdmins)
 
 
 
