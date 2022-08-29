@@ -15,7 +15,8 @@ const mongoose = require('mongoose'),
         }
     },
     addedby: { type: mongoose.Schema.Types.ObjectId,  ref: "Admin", index: true, required: true },
-    IsDeleted :{ type: Boolean, default: 0 }
+    IsDeleted :{ type: Boolean, default: 0 },
+    
 
 }, { timestamps: true }),
 

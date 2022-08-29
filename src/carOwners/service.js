@@ -174,7 +174,7 @@ module.exports = {
 
         return responseMessage.success('Displaying all your drivers.', drivers, res);
     },
-
+// vehucle 6130dbba2fea4def447b5009 //owner 62f5030651d68bb43a6134ef
     assignedVehicles: async (req, res) => {
         const vehicles = await Vehicle.find({ driverId: { $ne: null }, ownerId: req.user._id }).select(variables.vehicleDetails);
         if(vehicles.length == 0) return responseMessage.notFound("You have not assigned any vehicles to a driver yet", res);

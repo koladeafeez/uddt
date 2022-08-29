@@ -126,6 +126,8 @@ const customerDetails = [
     "customerId",
     "createdAt",
   ],
+
+  notification = [  "subject","message","sender","hasRead","createdAt" ],
   currencyDetails = ["id", "currency", "newRate", "approvedRate", "createdBy", "createdAt"],
   currencyShortDetails = ["id", "currency", "approvedRate", "createdBy", "createdAt"];
 
@@ -139,5 +141,6 @@ module.exports = {
   rideRequestFullDetails,
   vehicleTypeDetails,
   currencyDetails,
-  currencyShortDetails
+  currencyShortDetails,
+  notification
 };

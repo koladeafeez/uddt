@@ -68,7 +68,7 @@ module.exports = {
         let vehicle = await Faq.findOne({_id: req.params.faqId, IsDeleted: false});
         if(!vehicle) return responseMessage.notFound('Faq not found.', res);
 
-        vehicle.isDeleted = true;
+        vehicle.IsDeleted = true;
         vehicle.deletedAt = Date.now();
         await vehicle.save();
 
