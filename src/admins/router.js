@@ -94,7 +94,7 @@ router.put("/resetPassword/:token", adminService.resetPassword);
    ===================================================================== */
 
 // get all carOwners
-router.get( "/carOwners/all", [auth, accessControl.isAdmin], adminService.getAllCarOwners );
+//router.get( "/carOwners/all", [auth, accessControl.isAdmin], adminService.getAllCarOwners );
 
 // get carOwner details
 router.get( "/carOwners/:carOwnerId", [auth, accessControl.isAdmin], adminService.getCarOwnerDetails );
@@ -119,7 +119,7 @@ router.put( "/carOwners/flag/:carOwnerId", [auth, accessControl.isAdmin], adminS
    ===================================================================== */
 
 // get all carOwners
-router.get( "/customers/all", [auth, accessControl.isAdmin], adminService.getAllCustomers );
+//router.get( "/customers/all", [auth, accessControl.isAdmin], adminService.getAllCustomers );
 
 // get customer details
 router.get( "/customers/:customerId", [auth, accessControl.isAdmin], adminService.getCustomerDetails );
@@ -135,13 +135,13 @@ router.get( "/drivers/awaitingApproval", [auth, accessControl.isAdmin], adminSer
 router.put("/drivers/approveOrDisapprove/:driverId", [auth, accessControl.isAdmin], adminService.approveOrDisapproveDriver );
 
 // get all approved drivers
-router.get( "/drivers/approved", [auth, accessControl.isAdmin], adminService.getApprovedDrivers );
+router.get( "/drivers/approved", adminService.getApprovedDrivers );
 
 // get all disapproved drivers
 router.get( "/drivers/disapproved", [auth, accessControl.isAdmin], adminService.getDisapprovedDrivers );
 
 // get all drivers
-router.get( "/drivers/all", [auth, accessControl.isAdmin], adminService.getAllDrivers );
+//router.get( "/drivers/all", [auth, accessControl.isAdmin], adminService.getAllDrivers );
 
 // get a single driver details
 router.get( "/drivers/:driverId", [auth, accessControl.isAdmin], adminService.getDriverDetails );
@@ -210,5 +210,56 @@ router.get( "/accounts/carOwners/flagged", [auth, accessControl.isSuperAdmin], a
 
 // flag carOwner
 router.put( "/accounts/carOwners/suspendOrActivateAccount/:carOwnerId", [auth, accessControl.isSuperAdmin], accountManagementService.activateOrSuspendCarOwner );
+
+
+//Dashboard
+
+
+// get all Customer Count
+
+router.get( "/dashboard/getAll",[auth, accessControl.isAdmin], adminService.getAdminFullDashboard);
+
+router.get( "/dashboard/getAllCustomersCount",[auth, accessControl.isAdmin], adminService.getAllCustomersCount);
+
+router.get( "/dashboard/getAllUsersCount",[auth, accessControl.isAdmin], adminService.getAllUsersCount);
+
+router.get( "/dashboard/getAllApprovedDriversCount",[auth, accessControl.isAdmin], adminService.getApprovedDriversCount);
+
+router.get( "/dashboard/getAllApprovedVehiclesCount",[auth, accessControl.isAdmin], adminService.getApprovedVehiclesCount);
+
+router.get( "/dashboard/getAllDriverPendingApprovalCount",[auth, accessControl.isAdmin], adminService.getDriversPendingApprovalCount);
+
+router.get( "/dashboard/getAllVehiclePendingApprovalCount",[auth, accessControl.isAdmin], adminService.getVehiclePendingApprovalCount);
+
+
+
+/* =====================================================================
+                    User Management services 
+   ===================================================================== */
+
+
+   // fetch All Customer With Paginated
+   router.get( "/user/Customers",[auth, accessControl.isAdmin], adminService.getAllCustomer);
+
+   router.get( "/user/Customers/:customerId",[auth, accessControl.isAdmin], adminService.getCustomerDetails);
+
+   router.get( "/user/customers/trips/:customerId",[auth, accessControl.isAdmin], adminService.getCustomerPastRides);
+
+
+   router.get( "/user/Drivers",[auth, accessControl.isAdmin], adminService.getApprovedDrivers);
+
+   router.get( "/user/Drivers/:driverId",[auth, accessControl.isAdmin], adminService.getDriverDetails);
+
+   router.get( "/user/drivers/trips/:driverId",[auth, accessControl.isAdmin], adminService.getDriverPastRides);
+
+
+
+   router.get( "/user/CarOwners",[auth, accessControl.isAdmin], adminService.getAllCarOwners);
+
+   router.get( "/user/CarOwners/:carOwnerId",[auth, accessControl.isAdmin], adminService.getCarOwnerDetails);
+
+   router.get( "/user/CarOwners/:carOwnerId/vehicles",[auth, accessControl.isAdmin], adminService.getCarOwnerVehicles);
+
+
 
 module.exports = router;

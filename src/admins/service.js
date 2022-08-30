@@ -168,6 +168,13 @@ module.exports = {
         return responseMessage.success('Driver approved or disapproved successfully!.', null, res);
     },
 
+
+/* =====================================================================
+                    UserMananagement
+   ===================================================================== */
+
+// Fetch driver details
+
     getDriverDetails: async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(req.params.driverId)) return responseMessage.notFound('Invalid driver.', res);
 
@@ -177,12 +184,213 @@ module.exports = {
         return responseMessage.success('Showing the details of the selected driver.', driver, res);
     },
 
-    getApprovedDrivers: async (req, res) => {
-        const drivers = await Driver.find({ isApproved: true }).select(variables.driverDetails);
-        if(drivers.length == 0) return responseMessage.notFound('No drivers found', res);
+// fetch paginated Approved Drivers
 
-        return responseMessage.success('Listing all approved drivers.', drivers, res);
+    getApprovedDrivers: async (req, res) => {
+        const { page = 1, limit = 20 } = req.query;
+
+        try {
+        const posts = await Driver.find({ isApproved: true }).select(variables.driverDetails)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await Driver.find({ isApproved: true }).countDocuments();
+
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+
+        return responseMessage.success('Listing all approved drivers.', data, res);
+
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+        }
+
+
     },
+
+// Fetch Paginated Previous RideRequest
+getDriverPastRides: async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.driverId)) return responseMessage.notFound('Invalid driverId.', res);
+    const driver = await Driver.findById(req.params.driverId);
+    if(!driver) return responseMessage.notFound('Driver Not Found', res);
+
+    try {
+    const posts = await RideRequest.find({driverId : req.params.driverId, createdAt: {
+        $gte: startDate, 
+        $lt: endDate
+    }}).sort({createdAt: -1}).select(variables.adminDetails.rideRequestDetails)
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+    const count = await RideRequest.find({driverId : req.params.driverId, createdAt: {
+        $gte: startDate, 
+        $lt: endDate
+    }}).countDocuments();
+
+    var data ={
+        posts,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+    };
+
+    return responseMessage.success('Listing previous rides.', data, res);
+
+    } catch (err) {
+    
+        return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+    }
+
+
+},
+
+
+// Fetch Paginated CarOwners
+    getAllCarOwners: async (req, res) => {
+        const { page = 1, limit = 20 } = req.query;
+
+        try {
+        const posts = await CarOwner.find().sort({createdAt: -1}).select(variables.carOwnerDetails)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await CarOwner.find().sort({createdAt: -1}).countDocuments();
+
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+
+        return responseMessage.success('Listing carOwners.', data, res);
+
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+        }
+
+
+    },
+
+    // Fetch Single CarOwner Details
+    getCarOwnerDetails: async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.carOwnerId)) return responseMessage.notFound('Invalid carOwner.', res);
+
+        const carOwner = await CarOwner.findById(req.params.carOwnerId).select(variables.carOwnerDetails);
+        if(!carOwner) return responseMessage.notFound('Invalid carOwner', res);
+
+        return responseMessage.success('Showing the details of the selected carOwner.', carOwner, res);
+    },
+
+// fetch CarOwner Vehicles
+    getCarOwnerVehicles: async (req, res) => {
+        const vehicles = await Vehicle.find({ownerId: req.params.carOwnerId, isDeleted: false}).select(variables.vehicleDetails);
+        if(vehicles.length == 0) return responseMessage.notFound("No vehicles found", res);
+
+        return responseMessage.success('Displaying all cars registered by the selected carOwner.', vehicles, res);
+    },
+
+    // Fetch All Customers
+    getAllCustomer: async (req, res) => {
+        const { page = 1, limit = 20 } = req.query;
+
+        try {
+        const posts = await Customer.find({password: {$ne: null}}).sort({createdAt: -1}).select(variables.carOwnerDetails)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await Customer.find({password: {$ne: null}}).countDocuments();
+
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+
+        return responseMessage.success('Listing customers.', data, res);
+
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+        }
+
+
+    },
+
+
+    getCustomerDetails: async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.customerId)) return responseMessage.notFound('Invalid customer.', res);
+
+        const customer = await Customer.findById(req.params.customerId).select(variables.customerDetails);
+        if(!customer) return responseMessage.notFound('Invalid customer', res);
+
+        return responseMessage.success('Showing the details of the selected customer.', customer, res);
+    },
+
+
+// Fetch Paginated Customer Previous RideRequest
+getCustomerPastRides: async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.customerId)) return responseMessage.notFound('Invalid customerId.', res);
+    const driver = await Customer.findById(req.params.customerId);
+    if(!driver) return responseMessage.notFound('Customer Not Found', res);
+
+    try {
+    const posts = await RideRequest.find({customerId : req.params.customerId, createdAt: {
+        $gte: startDate, 
+        $lt: endDate
+    }}).sort({createdAt: -1}).select(variables.adminDetails.rideRequestDetails)
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+    const count = await RideRequest.find({customerId : req.params.customerId, createdAt: {
+        $gte: startDate, 
+        $lt: endDate
+    }}).countDocuments();
+
+    var data ={
+        posts,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+    };
+
+    return responseMessage.success('Listing previous rides.', data, res);
+
+    } catch (err) {
+    
+        return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+    }
+
+
+},
+
+
+
+
+    /* =====================================================================
+                   End UserMananagement
+   ===================================================================== */
+
+
+
 
     getDisapprovedDrivers: async (req, res) => {
         const drivers = await Driver.find({ isApproved: false }).select(variables.driverDetails);
@@ -249,21 +457,7 @@ module.exports = {
         return responseMessage.success('Listing all vehicles.', vehicles, res);
     },
 
-    getAllCarOwners: async (req, res) => {
-        const carOwners = await CarOwner.find().sort({createdAt: -1}).select(variables.carOwnerDetails);
-        if(carOwners.length == 0) return responseMessage.notFound('No carOwners found', res);
 
-        return responseMessage.success('Listing all carOwners.', carOwners, res);
-    },
-
-    getCarOwnerDetails: async (req, res) => {
-        if (!mongoose.Types.ObjectId.isValid(req.params.carOwnerId)) return responseMessage.notFound('Invalid carOwner.', res);
-
-        const carOwner = await CarOwner.findById(req.params.carOwnerId).select(variables.carOwnerDetails);
-        if(!carOwner) return responseMessage.notFound('Invalid carOwner', res);
-
-        return responseMessage.success('Showing the details of the selected carOwner.', carOwner, res);
-    },
 
     getCarOwnerVehicles: async (req, res) => {
         const vehicles = await Vehicle.find({ownerId: req.params.carOwnerId, isDeleted: false}).select(variables.vehicleDetails);
@@ -299,21 +493,6 @@ module.exports = {
         return responseMessage.success('Displaying all vehicles registered by the selected car owner currently awaiting approval.', pendingVehicles, res);
     },
 
-    getAllCustomers: async (req, res) => {
-        const customers = await Customer.find({password: {$ne: null}}).sort({createdAt: -1}).select(variables.carOwnerDetails);
-        if(customers.length == 0) return responseMessage.notFound('No customers found', res);
-
-        return responseMessage.success('Listing all customers.', customers, res);
-    },
-
-    getCustomerDetails: async (req, res) => {
-        if (!mongoose.Types.ObjectId.isValid(req.params.customerId)) return responseMessage.notFound('Invalid customer.', res);
-
-        const customer = await Customer.findById(req.params.customerId).select(variables.customerDetails);
-        if(!customer) return responseMessage.notFound('Invalid customer', res);
-
-        return responseMessage.success('Showing the details of the selected customer.', customer, res);
-    },
 
     getAllAdmins: async (req, res) => {
         const admins = await Admin.find({ isDeleted: false }).select(variables.adminDetails);
@@ -565,6 +744,76 @@ module.exports = {
 
         return responseMessage.success('Hi Chief! here is the report you requested', congoCustomers, res);
     },
+
+
+// Admin Dashboard
+
+getVehiclePendingApprovalCount : async(req, res) => {
+    const pendingVehicles = await Vehicle.find({ isDeleted: false, isApproved: false, approvedOrDisapprovedBy: null });
+
+    return responseMessage.success("Count of Pending Vehicles Approval",pendingVehicles.length,res);
+
+},
+getDriversPendingApprovalCount : async(req, res) => {
+    const pendingDrivers = await Driver.find({ isApproved: false, approvedOrDisapprovedBy: null });
+
+    return responseMessage.success("Count of Pending Drivers Approval",pendingDrivers.length,res);
+
+},
+getApprovedVehiclesCount : async(req, res) => {
+    const approvedVehicles = await Vehicle.find({ isDeleted: false, isApproved: true });
+
+    return responseMessage.success("Count of Approved Vehicles",approvedVehicles.length,res);
+
+},
+getApprovedDriversCount : async(req, res) => {
+    const approvedDrivers = await Driver.find({ isApproved: true });
+
+    return responseMessage.success("Count of Approved Drivers",approvedDrivers.length,res);
+},
+getAllCustomersCount: async (req, res) => {
+    const customers = await Customer.find({password: {$ne: null}}).sort({createdAt: -1})
+    
+    
+
+    return responseMessage.success('Count of All Customers.', customers.length, res);
+},
+
+getAllUsersCount: async (req, res) => {
+    const customers = await Customer.find({password: {$ne: null}}).sort({createdAt: -1});
+    const carOwners = await CarOwner.find({password: {$ne: null}});
+    const drivers =  await Driver.find({ isDeleted: false, isApproved: true });
+
+    const cnt = customers.length + carOwners.length + drivers.length;
+    return responseMessage.success('Count of All Users.', cnt, res);
+},
+getAdminFullDashboard : async(req, res) => {
+    const pendingVehicles = await Vehicle.find({ isDeleted: false, isApproved: false, approvedOrDisapprovedBy: null });
+    const pendingDrivers = await Driver.find({isApproved: false, approvedOrDisapprovedBy: null });
+    const approvedVehicles = await Vehicle.find({ isDeleted: false, isApproved: true });
+    const approvedDrivers = await Driver.find({ isApproved: true });
+
+    const customers = await Customer.find({password: {$ne: null}}).sort({createdAt: -1});
+    const carOwners = await CarOwner.find({password: {$ne: null}});
+    const drivers =  await Driver.find({ isDeleted: false, isApproved: true });
+
+
+    var response = {
+     "pendingVehicles": pendingVehicles.length,
+     "pendingDrivers" : pendingDrivers.length,
+     "approvedVehicles":  approvedVehicles.length,
+     "approvedDrivers" : approvedDrivers.length,
+     "customers": customers.length,
+     "users" : customers.length + carOwners.length + drivers.length,
+     "carOwners": carOwners.length
+
+    };
+
+    return responseMessage.success("Dashboard Counts", response,res);
+
+
+}
+
 };
 
 async function currencyActivityLogger(currencyId, userId, activity, message){

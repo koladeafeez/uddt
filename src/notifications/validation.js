@@ -1,4 +1,5 @@
 const Joi = require('@hapi/joi');
+const { notification } = require('../helpers/parameters');
 
 function createByAdmin(notification) {
   const schema = Joi.object().keys({
@@ -20,6 +21,7 @@ function createBySuperAdmin(notification) {
   
     return schema.validate(notification);
   }
+
 
 module.exports = {
     createByAdmin, createBySuperAdmin

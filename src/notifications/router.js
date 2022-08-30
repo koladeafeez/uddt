@@ -20,15 +20,8 @@ router.get('/fetchAllForDriver',[auth,accessControl.isDriver],notifyService.fetc
 router.get('/fetchAllForAdmin',[auth,accessControl.isAdmin],notifyService.fetchForAdmins)
 
 
+router.post('/readNotifications',notifyService.readNotifications);
 
-// get by id
-router.get( '/:notifyId', [ auth, accessControl.isCarOwner ], notifyService.get );
-
-// delete
-router.delete( '/:notifyId', [ accessControl.isCarOwner ], notifyService.delete );
-
-// get All
-router.get('/',[auth,accessControl.isCarOwner],notifyService.getAll)
 
 
 

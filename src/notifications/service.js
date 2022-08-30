@@ -20,7 +20,7 @@ module.exports = {
         if(error) return responseMessage.badRequest( error.details[0].message, res );
         if (!mongoose.Types.ObjectId.isValid(req.body.recipent)) return responseMessage.notFound('The Recipent does not exist.', res);
 
-        let user =  await CarOwner.findById(req.user._id);
+        let user =  await Admin.findById(req.user._id);
 
 
         let recipent = null;
@@ -63,34 +63,38 @@ module.exports = {
         return responseMessage.created("notification sent Successfully",notify, res);
     },
 
+readNotifications : async(req,res) => {
+    
+    if(req.body.ids == null || req.body.ids.length == 0) return responseMessage.badRequest("Input Valid Id(s) In request", res );
+
+    req.body.ids.forEach(async(element) => {
+        await Notification.findOneAndUpdate({_id : element},{hasRead : true});
+
+    });
+
+    return responseMessage.created("Notification(s) Updated",true, res);
+},
+
+deleteNotifications : async(req,res) => {
+    
+    if(req.body.ids == null || req.body.ids.length == 0) return responseMessage.badRequest("Input Valid Id(s) In request", res );
+
+    req.body.ids.forEach(async(element) => {
+        await Notification.findOneAndUpdate({_id : element},{isDeleted : true});
+
+    });
+
+    return responseMessage.created("Notification(s) Deleted",true, res);
+},
+
     createBySuperAdmin: async (req, res) => {
         const { error } = validate.createByAdmin(req.body);
         if(error) return responseMessage.badRequest( error.details[0].message, res );
 
-        //remove
-        let user =  await CarOwner.findById(req.user._id);
+        let user =  await Admin.findById(req.user._id);
        
-        let recipent = null;
-        if(req.recipentRole == "Admin"){
+      let recipent = await Admin.findById(req.body.recipent);
 
-       recipent = await Admin.findById(req.body.recipent);
-
-        }else if(req.recipentRole == "Car Owner"){
-
-      recipent = await CarOwner.findById(req.body.recipent);
-
-        }else if(req.recipentRole == "Customer"){
-
-            recipent = await Customer.findById(req.body.recipent);
-
-        }else if(req.recipentRole == "Driver")
-        {
-            recipent = await Driver.findById(req.body.recipent);
-
-        }else
-        {
-            return responseMessage.notFound('RecipentRole Not Supported', res);
-        }
 
     if(!recipent) return responseMessage.notFound('Recipent does not exist.', res);
     
@@ -115,52 +119,15 @@ module.exports = {
 
    
     get: async (req, res) => {
-        if (!mongoose.Types.ObjectId.isValid(req.params.faqId)) return responseMessage.notFound('The Id is required', res);
-        let faq = await Faq.findOne({_id: req.params.notifyId, isDeleted: false});
-        if(!faq) return responseMessage.notFound('Notification does not exist.', res);
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) return responseMessage.notFound('The id is required', res);
+        let notify = await Faq.findOne({_id: req.params.notifyId, isDeleted: false});
+        if(!notify) return responseMessage.notFound('Notification does not exist.', res);
 
 
-        return responseMessage.success('Faq found', faq, res);
-
+        return responseMessage.success('Notification found', faq, res);
        
     },
 
-
-    delete: async (req, res) => {
-        if (!mongoose.Types.ObjectId.isValid(req.params.notifyId)) return responseMessage.notFound('The notifyId does not exist.', res);
-        let notify = await Faq.findOne({_id: req.params.notifyId, isDeleted: false});
-        if(!notify) return responseMessage.notFound('Notification not found.', res);
-
-        notify.isDeleted = true;
-        notify.deletedAt = Date.now();
-        notify.deletedBy = req.user._id;
-        await vehicle.save();
-
-        return responseMessage.success('Notification deleted sucessfully!', null, res);
-    },
-
-
-    getAll: async (req, res) => {
-
-        var searchTerm = req.query.searchTerm;
-
-      /*  if(searchTerm != null && searchTerm.length > 0)
-        {
-            var faq = Faq.find({ "question": { "$regex": searchTerm, "$options": "i" } },
-            (errs, f)=>{
-                if(errs){
-                    responseMessage.internalServerError();
-                }
-                return responseMessage.success( faq.length +'faqs Found', f, res);
-            }
-            );
-
-        }*/
-        const faqs = await Faq.find({IsDeleted: false});
-        if(faqs.length == 0) return responseMessage.notFound('No faq Found', res);
-
-        return responseMessage.success('Listing all faqs', faqs, res);
-    },
 
     fetchForCarOwner : async(req, res) =>{
 
