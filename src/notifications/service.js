@@ -130,39 +130,141 @@ deleteNotifications : async(req,res) => {
 
 
     fetchForCarOwner : async(req, res) =>{
-
-        let noti = await Notification.find({ recipent : req.user._id, recipentRole: "Car Owner", isDeleted: false}).select(variables.notification);
-        if(noti.length == 0) return responseMessage.notFound('No Recent Notification.', res);
-
-
-        return responseMessage.success('Recent Notification Found', noti, res);
+        const { page = 1, limit = 20 } = req.query;
+        const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+        
+        try {
+        const posts = await Notification.find({ recipent : req.user._id, recipentRole: "Car Owner", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).sort({createdAt: -1}).select(variables.notification)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+    
+        const count = await Notification.find({ recipent : req.user._id, recipentRole: "Car Owner", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).countDocuments();
+    
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+    
+        return responseMessage.success('Listing  notifications.', data, res);
+    
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+    
+        }
     },
   
 
     fetchForCustomer : async(req, res) =>{
 
-        let noti = await Notification.find({ recipent : req.user._id, recipentRole: "Customer", isDeleted: false}).select(variables.notification);
-        if(noti.length == 0) return responseMessage.notFound('No Recent Notification.', res);
 
-        return responseMessage.success('Recent Notification Found', noti, res);
+        const { page = 1, limit = 20 } = req.query;
+        const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+        
+        try {
+        const posts = await Notification.find({ recipent : req.user._id, recipentRole: "Customer", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).sort({createdAt: -1}).select(variables.notification)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+    
+        const count = await Notification.find({ recipent : req.user._id, recipentRole: "Customer", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).countDocuments();
+    
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+    
+        return responseMessage.success('Listing  notifications.', data, res);
+    
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+    
+        }
     },
 
 
     fetchForDrivers : async(req, res) =>{
 
-        let noti = await Notification.find({ recipent : req.user._id, recipentRole: "Driver", isDeleted: false}).select(variables.notification);
-        if(noti.length == 0) return responseMessage.notFound('No Recent Notification.', res);
-
-        return responseMessage.success('Recent Notification Found', noti, res);
+        const { page = 1, limit = 20 } = req.query;
+        const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+        
+        try {
+        const posts = await Notification.find({ recipent : req.user._id, recipentRole: "Driver", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).sort({createdAt: -1}).select(variables.notification)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+    
+        const count = await Notification.find({ recipent : req.user._id, recipentRole: "Driver", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).countDocuments();
+    
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+    
+        return responseMessage.success('Listing  notifications.', data, res);
+    
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+    
+        }
     },
 
     fetchForAdmins: async(req, res) =>{
 
-        let noti = await Notification.find({ recipent : req.user._id, recipentRole: "Admin", isDeleted: false}).select(variables.notification);
-        if(noti.length == 0) return responseMessage.notFound('No Recent Notification.', res);
-
-
-        return responseMessage.success('Recent Notification Found', noti, res);
+        const { page = 1, limit = 20 } = req.query;
+        const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+        
+        try {
+        const posts = await Notification.find({ recipent : req.user._id, recipentRole: "Admin", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).sort({createdAt: -1}).select(variables.notification)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+    
+        const count = await Notification.find({ recipent : req.user._id, recipentRole: "Admin", isDeleted: false, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).countDocuments();
+    
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+    
+        return responseMessage.success('Listing  notifications.', data, res);
+    
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+    
+        }
     }
 
 }
