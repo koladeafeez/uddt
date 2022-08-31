@@ -120,11 +120,11 @@ deleteNotifications : async(req,res) => {
    
     get: async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) return responseMessage.notFound('The id is required', res);
-        let notify = await Faq.findOne({_id: req.params.notifyId, isDeleted: false});
+        let notify = await Notification.findOne({_id: req.params.id, isDeleted: false}).select(variables.notification);
         if(!notify) return responseMessage.notFound('Notification does not exist.', res);
 
 
-        return responseMessage.success('Notification found', faq, res);
+        return responseMessage.success('Notification found', notify, res);
        
     },
 

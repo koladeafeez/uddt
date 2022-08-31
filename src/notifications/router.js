@@ -7,6 +7,8 @@ accessControl = require('../middlewares/accessControl');
 // create
 router.post( '/createByAdmin',[ auth, accessControl.isCarOwner], notifyService.createByAdmin );
 
+
+
 //Fetch All recent Notificatons for carOwner
 router.get('/fetchAllForCarOwner',[auth,accessControl.isCarOwner],notifyService.fetchForCarOwner)
 
@@ -19,9 +21,12 @@ router.get('/fetchAllForDriver',[auth,accessControl.isDriver],notifyService.fetc
 //Fetch All recent notifications for Admins
 router.get('/fetchAllForAdmin',[auth,accessControl.isAdmin],notifyService.fetchForAdmins)
 
+//get single
+
+router.get('/single/:id',notifyService.get);
+
 
 router.post('/readNotifications',notifyService.readNotifications);
-
 
 
 
