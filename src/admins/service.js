@@ -396,6 +396,125 @@ getCustomerPastRides: async (req, res) => {
    ===================================================================== */
 
 
+    /* =====================================================================
+                  Pending Confirmations
+   ===================================================================== */
+
+
+   getPendingDrivers: async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    try {
+    const posts = await Driver.find({ isApproved: false, isPhoneVerified : true, password: {$ne: null},approvedOrDisapprovedBy : null  }).select(variables.driverDetails)
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+
+    const count = await Driver.find({ isApproved: false, isPhoneVerified :true, approvedOrDisapprovedBy : null, password: {$ne: null} }).countDocuments();
+
+    var data ={
+        posts,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+    };
+
+    return responseMessage.success('Listing all pending drivers.', data, res);
+
+    } catch (err) {
+    
+        return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+    }
+
+
+},
+
+getPendingVehicles: async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    try {
+    const posts = await Vehicle.find({ isApproved: false, approvedOrDisapprovedBy: null, isDeleted: false })
+    .populate('ownerId', ['firstName', 'lastName'])
+    .select(variables.vehicleDetails)
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+
+    const count = await Driver.find({ isApproved: false, approvedOrDisapprovedBy: null, isDeleted: false }).countDocuments();
+
+    var data ={
+        posts,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+    };
+
+    return responseMessage.success('Listing all Pending Vehicles Awaiting Approval.', data, res);
+
+    } catch (err) {
+    
+        return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+    }
+
+
+},
+
+
+getSingleVehicles: async (req, res) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.vehicleId)) return responseMessage.notFound('Invalid VehicleId.', res);
+    const vehicle = await Vehicle.findById(req.params.vehicleId)
+    .populate('ownerId', ['firstName', 'lastName'])
+    .populate('driverId', ['firstName', 'lastName'])
+    .populate("vehicleTypeId",['vehicle_type'])
+    .select(variables.vehicleDetails);
+
+    if(vehicle == null || vehicle.length == 0 ) return responseMessage.notFound('Vehicle Not Found.', res);
+
+    return responseMessage.success('vehicle retrieved sucessfully!', vehicle, res);
+},
+
+
+
+
+getRegisteredVehicles: async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    try {
+    const posts = await Vehicle.find({isApproved: true, approvedOrDisapprovedBy: {$ne : null}, driverId : {$ne : null},  isDeleted: false })
+    .populate('ownerId', ['firstName', 'lastName'])
+    .populate('driverId', ['firstName', 'lastName'])
+    .populate("vehicleTypeId",['vehicle_type'])
+    .select(variables.vehicleDetails)
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+
+    const count = await Vehicle.find({isApproved: true, approvedOrDisapprovedBy: {$ne : null}, driverId : {$ne : null},  isDeleted: false }).countDocuments();
+
+    var data ={
+        posts,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+    };
+
+    return responseMessage.success('Listing all registered vehicles.', data, res);
+
+    } catch (err) {
+    
+        return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+    }
+
+
+},
+    /* =====================================================================
+                  End Pending Confirmations
+   ===================================================================== */
+
+
+
+
+
 
 
     getDisapprovedDrivers: async (req, res) => {
@@ -519,17 +638,54 @@ getCustomerPastRides: async (req, res) => {
     getTripDetails: async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(req.params.tripId)) return responseMessage.notFound('Invalid trip.', res);
 
-        const trip = await RideRequest.findById(req.params.tripId).select(variables.rideRequestDetails);
+        const trip = await RideRequest.findById(req.params.tripId)
+        .populate('driverId', ['firstName', 'lastName'])
+    .populate('customerId', ['firstName', 'lastName'])
+    .populate("vehicleTypeId",['vehicle_type'])
+        .select(variables.rideRequestDetails);
         if(!trip) return responseMessage.notFound('Invalid trip', res);
 
         return responseMessage.success('Showing the details of the selected trip.', trip, res);
     },
 
     getTripsInProgress: async (req, res) => {
-        const trips = await RideRequest.find({trip_status: 'InProgress'}).select(variables.rideRequestDetails);
-        if(trips.length == 0) return responseMessage.notFound('No ongoing trips', res);
 
-        return responseMessage.success('Listing all trips in progress', trips, res);
+        const { page = 1, limit = 20 } = req.query;
+        const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+        
+        try {
+        const posts = await RideRequest.find({trip_status: 'InProgress',createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).populate('driverId', ['firstName', 'lastName'])
+    .populate('customerId', ['firstName', 'lastName'])
+    .populate("vehicleTypeId",['vehicle_type'])
+        .sort({createdAt: -1}).select(variables.customerPreviousRideAdminView)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+    
+        const count = await RideRequest.find({trip_status: 'InProgress',createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }}).countDocuments();
+    
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+    
+        return responseMessage.success('Listing all trips in progress.', data, res);
+    
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+    
+        }
+
+
+
     },
 
     /* 

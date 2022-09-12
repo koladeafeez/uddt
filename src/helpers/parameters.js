@@ -158,6 +158,7 @@ const customerDetails = [
   "createdAt",
   "trip_started_at",
   "trip_ended_at",
+  "rideOrderId"
  ];
 
 

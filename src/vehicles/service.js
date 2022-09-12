@@ -56,6 +56,8 @@ vehicle = {
         if(vehicles.length == 0) return responseMessage.notFound("You don't have any vehicles pending approval.", res);
 
         return responseMessage.success('Displaying all vehicles pending approval.', vehicles, res);
+
+
     },
 
     unassignedVehicles: async (req, res) => {

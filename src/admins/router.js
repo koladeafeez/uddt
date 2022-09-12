@@ -261,5 +261,13 @@ router.get( "/dashboard/getAllVehiclePendingApprovalCount",[auth, accessControl.
    router.get( "/user/CarOwners/:carOwnerId/vehicles",[auth, accessControl.isAdmin], adminService.getCarOwnerVehicles);
 
 
+   router.get("/user/PendingDrivers",[auth, accessControl.isAdmin],adminService.getPendingDrivers);
+
+   router.get("/user/PendingVehicles",[auth,accessControl.isAdmin],adminService.getPendingVehicles);
+
+   router.get("/user/registeredVehicles",[auth,accessControl.isAdmin],adminService.getRegisteredVehicles);
+
+   router.get("/user/Vehicles/:vehicleId",[auth,accessControl.isAdmin],adminService.getSingleVehicles);
+
 
 module.exports = router;
