@@ -27,6 +27,7 @@ const customerDetails = [
     "vehicleId",
     "accountStatus",
     "country"
+
   ],
   //carOwners
   carOwnerDetails = [
@@ -129,7 +130,36 @@ const customerDetails = [
 
   notification = [  "subject","message","sender","hasRead","createdAt" ],
   currencyDetails = ["id", "currency", "newRate", "approvedRate", "createdBy", "createdAt"],
-  currencyShortDetails = ["id", "currency", "approvedRate", "createdBy", "createdAt"];
+  currencyShortDetails = ["id", "currency", "approvedRate", "createdBy", "createdAt"],
+
+  adminViewDetails = [
+    "id",
+    "firstName",
+    "lastName",
+    "email",
+    "phone",
+    "profile_picture",
+    "drivers_license_front",
+    "drivers_license_back",
+    "isOnline",
+    "accountStatus",
+    "country"
+
+  ],
+ customerPreviousRideAdminView = [
+  "id",
+  "pickup_location",
+  "destination",
+  "vehicleTypeId",
+  "trip_start_at",
+  "trip_status",
+  "driverId",
+  "customerId",
+  "createdAt",
+  "trip_started_at",
+  "trip_ended_at",
+ ];
+
 
 module.exports = {
   customerDetails,
@@ -142,5 +172,7 @@ module.exports = {
   vehicleTypeDetails,
   currencyDetails,
   currencyShortDetails,
-  notification
+  notification,
+  adminViewDetails,
+  customerPreviousRideAdminView
 };

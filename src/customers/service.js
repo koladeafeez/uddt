@@ -63,7 +63,9 @@ module.exports  = {
         customer.lastName = req.body.lastName;
         customer.payment_mode = req.body.payment_mode;
         customer.currency = req.body.currency;
-        const salt = await bcrypt.genSalt(10);        
+        customer.profile_picture = "";
+        const salt = await bcrypt.genSalt(10);
+
         customer.password = await bcrypt.hash(req.body.password, salt);
         await customer.save();
 

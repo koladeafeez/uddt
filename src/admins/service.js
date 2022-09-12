@@ -178,7 +178,7 @@ module.exports = {
     getDriverDetails: async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(req.params.driverId)) return responseMessage.notFound('Invalid driver.', res);
 
-        const driver = await Driver.findById(req.params.driverId).select(variables.driverDetails);
+        const driver = await Driver.findById(req.params.driverId).populate("Vehicles").select(variables.driverDetails);
         if(!driver) return responseMessage.notFound('Invalid driver', res);
 
         return responseMessage.success('Showing the details of the selected driver.', driver, res);
@@ -188,12 +188,14 @@ module.exports = {
 
     getApprovedDrivers: async (req, res) => {
         const { page = 1, limit = 20 } = req.query;
-
+//.
         try {
         const posts = await Driver.find({ isApproved: true }).select(variables.driverDetails)
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .exec();
+
+
 
         const count = await Driver.find({ isApproved: true }).countDocuments();
 
@@ -224,15 +226,18 @@ getDriverPastRides: async (req, res) => {
     if(!driver) return responseMessage.notFound('Driver Not Found', res);
 
     try {
-    const posts = await RideRequest.find({driverId : req.params.driverId, createdAt: {
+    const posts = await RideRequest.find({driverId : req.params.driverId, trip_status : "Ended", createdAt: {
         $gte: startDate, 
         $lt: endDate
-    }}).sort({createdAt: -1}).select(variables.adminDetails.rideRequestDetails)
+    }}).populate('customerId', ['firstName', 'lastName'])
+    .sort({createdAt: -1}).select(variables.customerPreviousRideAdminView)
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec();
 
-    const count = await RideRequest.find({driverId : req.params.driverId, createdAt: {
+
+
+    const count = await RideRequest.find({driverId : req.params.driverId, trip_status : "Ended", createdAt: {
         $gte: startDate, 
         $lt: endDate
     }}).countDocuments();
@@ -307,12 +312,12 @@ getDriverPastRides: async (req, res) => {
         const { page = 1, limit = 20 } = req.query;
 
         try {
-        const posts = await Customer.find({password: {$ne: null}}).sort({createdAt: -1}).select(variables.carOwnerDetails)
+        const posts = await Customer.find({ email:{$ne:null}, isPhoneVerified : true, password: {$ne: null}}).sort({createdAt: -1}).select(variables.adminViewDetails)
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .exec();
 
-        const count = await Customer.find({password: {$ne: null}}).countDocuments();
+        const count = await Customer.find({ email:{$ne:null}, isPhoneVerified : true, password: {$ne: null}}).countDocuments();
 
         var data ={
             posts,
@@ -352,15 +357,16 @@ getCustomerPastRides: async (req, res) => {
     if(!driver) return responseMessage.notFound('Customer Not Found', res);
 
     try {
-    const posts = await RideRequest.find({customerId : req.params.customerId, createdAt: {
+    const posts = await RideRequest.find({customerId : req.params.customerId, trip_status : "Ended", createdAt: {
         $gte: startDate, 
         $lt: endDate
-    }}).sort({createdAt: -1}).select(variables.adminDetails.rideRequestDetails)
+    }}).populate('driverId', ['firstName', 'lastName'])
+    .sort({createdAt: -1}).select(variables.customerPreviousRideAdminView)
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec();
 
-    const count = await RideRequest.find({customerId : req.params.customerId, createdAt: {
+    const count = await RideRequest.find({customerId : req.params.customerId, trip_status : "Ended", createdAt: {
         $gte: startDate, 
         $lt: endDate
     }}).countDocuments();
