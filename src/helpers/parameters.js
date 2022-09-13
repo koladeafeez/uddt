@@ -26,7 +26,8 @@ const customerDetails = [
     "isOnline",
     "vehicleId",
     "accountStatus",
-    "country"
+    "country",
+    "createdAt"
 
   ],
   //carOwners
