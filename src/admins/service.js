@@ -190,14 +190,14 @@ module.exports = {
         const { page = 1, limit = 20 } = req.query;
 //.
         try {
-        const posts = await Driver.find({ isApproved: true }).select(variables.driverDetails)
+        const posts = await Driver.find({ isApproved: true, isPhoneVerified : true }).select(variables.driverDetails)
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .exec();
 
 
 
-        const count = await Driver.find({ isApproved: true }).countDocuments();
+        const count = await Driver.find({ isApproved: true, isPhoneVerified : true }).countDocuments();
 
         var data ={
             posts,
@@ -265,12 +265,12 @@ getDriverPastRides: async (req, res) => {
         const { page = 1, limit = 20 } = req.query;
 
         try {
-        const posts = await CarOwner.find().sort({createdAt: -1}).select(variables.carOwnerDetails)
+        const posts = await CarOwner.find({email:{$ne:null}, isEmailVerified : true, password: {$ne: null}}).sort({createdAt: -1}).select(variables.carOwnerDetails)
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .exec();
 
-        const count = await CarOwner.find().sort({createdAt: -1}).countDocuments();
+        const count = await CarOwner.find({email:{$ne:null}, isEmailVerified : true, password: {$ne: null}}).sort({createdAt: -1}).countDocuments();
 
         var data ={
             posts,
@@ -507,9 +507,103 @@ getRegisteredVehicles: async (req, res) => {
 
 
 },
+
+
+ // Fetch All Customers
+ getAllUSers: async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+    
+    if( req.query.type == null || ["drivers","carowners","passengers"].includes(req.query.type.toLowerCase()) == false)
+        return responseMessage.badRequest("Valid Customer Type Not Found", res);
+
+    
+    try {
+  var posts =  [];
+  var count = 0;
+    if(req.query.type.toLowerCase() == "drivers")
+    {
+        posts = await Driver.find({ isApproved: true, isPhoneVerified : true,createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }
+        }).sort({createdAt: -1}).select(variables.adminViewDetails)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+      count = await Driver.find({ isApproved: true, isPhoneVerified : true ,createdAt: {
+                $gte: startDate, 
+                $lt: endDate
+            }
+            }).countDocuments();
+
+    }else if(req.query.type.toLowerCase() == "passengers")
+    {
+        posts = await Customer.find({ email:{$ne:null}, isPhoneVerified : true, password: {$ne: null},createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }
+        }).sort({createdAt: -1}).select(variables.adminViewDetails)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+         count = await Customer.find({ email:{$ne:null}, isPhoneVerified : true, password: {$ne: null},createdAt: {
+                $gte: startDate, 
+                $lt: endDate
+            }
+            }).countDocuments();
+
+    }
+    else{
+        posts = await CarOwner.find({email:{$ne:null}, isEmailVerified : true, password: {$ne: null},createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }
+        }).sort({createdAt: -1}).select(variables.adminViewDetails)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+          count = await CarOwner.find({ email:{$ne:null}, isEmailVerified : true, password: {$ne: null},createdAt: {
+                $gte: startDate, 
+                $lt: endDate
+            }
+            }).countDocuments();
+
+    }
+     
+
+
+    var data ={
+        posts,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page
+    };
+
+    return responseMessage.success('Listing Users.', data, res);
+
+    } catch (err) {
+    
+        return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+    }
+
+
+},
+
+
+
+
+
+
+
     /* =====================================================================
                   End Pending Confirmations
    ===================================================================== */
+
+
 
 
 
@@ -620,10 +714,36 @@ getRegisteredVehicles: async (req, res) => {
 
 
     getAllAdmins: async (req, res) => {
-        const admins = await Admin.find({ isDeleted: false }).select(variables.adminDetails);
-        if(admins.length == 0) return responseMessage.notFound('No admins found', res);
+        const { page = 1, limit = 20 } = req.query;
+        const {startDate = new Date('0001-01-01T00:00:00Z'), endDate = Date.now()} = req.query;
+        
+        try {
+            const posts = await Admin.find({ isDeleted: false, isEmailVerified : true, createdAt: {
+                $gte: startDate, 
+                $lt: endDate
+            }}).sort({createdAt: -1}).select(variables.adminDetails)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
 
-        return responseMessage.success('Listing all admins.', admins, res);
+        const count = await Admin.find({ isDeleted: false, isEmailVerified : true, createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        } }).countDocuments();
+
+        var data ={
+            posts,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+
+        return responseMessage.success('Listing All Admins.', data, res);
+
+        } catch (err) {
+        
+            return responseMessage.internalServerError("An Error Occur While Fetching Data");
+
+        }
     },
 
     getSingleAdmin: async (req, res) => {

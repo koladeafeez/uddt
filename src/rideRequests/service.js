@@ -105,6 +105,7 @@ module.exports = {
 
         rideRequest.driverId = req.user._id;
         rideRequest.vehicle_plate_number = vehicle.plate_number;
+        rideRequest.vehicleId = vehicle._id;
         rideRequest.trip_status = 'Pending';
         await rideRequest.save();
 
@@ -166,6 +167,16 @@ module.exports = {
 
         return responseMessage.success("Showing a driver's trip history", rideRequests, res);
     },
+
+    fetchVehicleTripHistory: async (req, res) => {
+        const rideRequests = await RideRequest.find({ vehicleId: req.params.vehicleId })
+        .populate('customerId', ['firstName', 'lastName'])
+        .select(variables.rideRequestDetails).sort({createdAt: 'desc'});
+        if(rideRequests.length == 0) return responseMessage.notFound('No trips found.', res);
+
+        return responseMessage.success("Showing a vehicle's trip history", rideRequests, res);
+    },
+
 
     fetchOngoingTrips: async (req, res) => {
         const ongoingTrips = await RideRequest.find({ driverId: req.user._id, trip_status: 'InProgress' }).select(variables.rideRequestDetails);

@@ -21,7 +21,9 @@ adminSchema = new Schema({
     email_verification_token_expires_on: Number,
     role: { type: String, default: 'Admin' },
     needsPasswordReset: { type: Boolean, default: true },
-    isDeleted: { type: Boolean, default: false }
+    isDeleted: { type: Boolean, default: false },
+    accountStatus: { type: String, default: "Active", enum: [ "Active", "Deactivate", "Suspended" ] }
+
 }, { timestamps: true });
 
 const Admin = mongoose.model('Admin', adminSchema);

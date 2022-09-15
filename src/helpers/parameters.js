@@ -26,7 +26,8 @@ const customerDetails = [
     "isOnline",
     "vehicleId",
     "accountStatus",
-    "country"
+    "country",
+    "createdAt"
 
   ],
   //carOwners
@@ -52,7 +53,8 @@ const customerDetails = [
     "phone",
     "profile_picture",
     "isEmailVerified",
-    "country"
+    "country",
+    "accountStatus"
   ],
   vehicleTypeDetails = ["id", "vehicle_type", "base_charge", "picture", "tripCharge", "currency"],
   //vehicle
@@ -72,7 +74,8 @@ const customerDetails = [
     "vehicle_image_back_view",
     "ownerId",
     "createdAt",
-    "approvedOrDisapprovedAt"
+    "approvedOrDisapprovedAt",
+    "VehicleStatus"
   ],
   //ride requests
   rideRequestFullDetails = [
@@ -126,6 +129,9 @@ const customerDetails = [
     "driverId",
     "customerId",
     "createdAt",
+    "vehicleId",
+    "trip_started_at",
+    "trip_ended_at"
   ],
 
   notification = [  "subject","message","sender","hasRead","createdAt" ],
@@ -143,7 +149,8 @@ const customerDetails = [
     "drivers_license_back",
     "isOnline",
     "accountStatus",
-    "country"
+    "country",
+    "role"
 
   ],
  customerPreviousRideAdminView = [

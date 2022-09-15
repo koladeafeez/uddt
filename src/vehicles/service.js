@@ -69,9 +69,32 @@ vehicle = {
 
     getUserVehicles: async (req, res) => {
         const vehicle = await Vehicle.find({ownerId: req.user._id, isDeleted: false }).sort({createdAt: 1}).select(variables.vehicleDetails);
-        if(vehicle.length == 0 ) return responseMessage.notFound('You have not uploaded any vehicles yet.', res);
+        var newVehicles = [];
+        if(vehicle != null && vehicle.length > 0)
+        {
+           newVehicles = vehicle.map(elm => 
+                {
+                    if(elm.approvedOrDisapprovedAt != null && elm.isApproved == true)
+                    {
+                       return { ...elm.toObject(), vehicleStatus: 'Approved' };
+                       
+                    }else if(elm.approvedOrDisapprovedAt != null && elm.isApproved == false)
+                    {
+                      return  { ...elm.toObject(), vehicleStatus: 'Rejected' };
+                    }else
+                    {
+                      return  { ...elm.toObject(), vehicleStatus: 'Pending' };
+                    }
+                  
+                }) 
 
-        return responseMessage.success('vehicle retrieved sucessfully!', vehicle, res);
+          
+        }
+
+        
+        if(newVehicles .length == 0 ) return responseMessage.notFound('You have not uploaded any vehicles yet.', res);
+
+        return responseMessage.success('vehicle retrieved sucessfully!', newVehicles, res);
     },
 
     update: async (req, res) => {

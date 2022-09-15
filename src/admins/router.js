@@ -270,4 +270,6 @@ router.get( "/dashboard/getAllVehiclePendingApprovalCount",[auth, accessControl.
    router.get("/user/Vehicles/:vehicleId",[auth,accessControl.isAdmin],adminService.getSingleVehicles);
 
 
+   router.get("/users/all",[auth,accessControl.isAdmin],adminService.getAllUSers);
+
 module.exports = router;
