@@ -25,6 +25,10 @@ router.post( '/register', [ auth, accessControl.isCarOwner ], vehicleService.reg
 // get all approved drivers without a vehicle drivers
 router.get( '/driversWithoutVehicle', [ auth, accessControl.isCarOwner ], vehicleService.fetchApprovedDriversWithoutVehicle );
 
+
+router.get('/trips/:vehicleId',[ auth, accessControl.isCarOwner ], vehicleService.fetchVehicleTripHistory);
+
+
 // get vehicle details
 router.get( '/:vehicleId', [ auth, accessControl.isCarOwner ], vehicleService.findOne );
 

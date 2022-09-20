@@ -101,6 +101,8 @@ module.exports = {
         return responseMessage.success( 'An email was sent to the email address provided. Kindly check your email and follow the instructions therein.', null, res );
     },
 
+
+
     resetPassword: async (req, res) => {
         const { error } = validate.password(req.body);
         if(error) return responseMessage.badRequest( error.details[0].message, res );

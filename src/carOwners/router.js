@@ -12,6 +12,8 @@ router.post( '/register', carOwnerService.registration );
 // get profile of the current logged in car owner
 router.get( '/profile', auth, carOwnerService.profile );
 
+
+
 // update carOwner profile
 router.put( '/profile/:carOwnerId', auth, mediaUpload, carOwnerService.update );
 
@@ -29,6 +31,7 @@ router.post( '/forgotPassword', carOwnerService.forgotPassword );
 
 //reset password
 router.put( '/resetPassword/:token', carOwnerService.resetPassword );
+
 
 /*************************************************************************
                             Dashboard reports

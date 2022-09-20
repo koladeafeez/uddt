@@ -28,7 +28,6 @@ router.get( '/drivers/:rideRequestId', [ auth, accessControl.isDriver ], rideReq
 // get a driver's trip history
 router.get( '/drivers/trips/history', [ auth, accessControl.isDriver ], rideRequestService.fetchDriverTripHistory );
 
-router.get('/vehicles/trips/:vehicleId',[ auth, accessControl.isCarOwner ], rideRequestService.fetchVehicleTripHistory);
 
 /* *******************************   CUSTOMER ROUTES   ******************************* */
 // request ride

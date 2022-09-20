@@ -6,6 +6,7 @@ const _ = require('lodash'),
     { Vehicle } = require('./model'),
     { VehicleType } = require('../vehicleTypes/model'),
     { Driver } = require('../drivers/model'),
+    {RideRequest} = require('../rideRequests/model'),
 
 vehicle = {
     registration: async (req, res) => {
@@ -95,6 +96,15 @@ vehicle = {
         if(newVehicles .length == 0 ) return responseMessage.notFound('You have not uploaded any vehicles yet.', res);
 
         return responseMessage.success('vehicle retrieved sucessfully!', newVehicles, res);
+    },
+
+    fetchVehicleTripHistory: async (req, res) => {
+        const rideRequests = await RideRequest.find({ vehicleId: req.params.vehicleId })
+        .populate('customerId', ['firstName', 'lastName'])
+        .select(variables.rideRequestDetails).sort({createdAt: 'desc'});
+        if(rideRequests.length == 0) return responseMessage.notFound('No trips found.', res);
+
+        return responseMessage.success("Showing a vehicle's trip history", rideRequests, res);
     },
 
     update: async (req, res) => {
