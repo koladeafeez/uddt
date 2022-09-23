@@ -162,16 +162,20 @@ module.exports = {
 
         return responseMessage.success('Displaying all trips made with your vehicles', trips, res);
     },
+//{vehicleId:ObjectId('60da5c84f741f51165d381ae')}
+// {ownerId: ObjectId('62f5030651d68bb43a6134ef')}
+//60e70449d7a8f84bf5c067c7
 
+//60dee75df741f51165d381d9
     myDrivers: async (req, res) => {
-        const vehicles = await Vehicle.find({ownerId: req.user._id});
+        const vehicles = await Vehicle.find({ownerId: req.user._id, isDeleted : false});
         if(vehicles.length == 0) return responseMessage.notFound("You have not registered any vehicles yet", res);
         
         const vehicleIds = [];
         vehicles.forEach( vehicle => { vehicleIds.push(vehicle.id); });
 
         // get drivers
-        const drivers = await Driver.find({vehicleId: {$in: vehicleIds}}).select(variables.driverDetails);
+        const drivers = await Driver.find({vehicleId: {$in: vehicleIds}, hasVehicleAssigned : true}).select(variables.driverDetails);
         if(drivers.length == 0) return responseMessage.notFound("No drivers found.", res);
 
         return responseMessage.success('Displaying all your drivers.', drivers, res);

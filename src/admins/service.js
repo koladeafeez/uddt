@@ -153,7 +153,7 @@ module.exports = {
 
         return responseMessage.success('Listing all drivers awaiting approval.', drivers, res);
     },
-
+ 
     approveOrDisapproveDriver: async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(req.params.driverId)) return responseMessage.notFound('Invalid driver.', res);
         const driver = await Driver.findById(req.params.driverId);
