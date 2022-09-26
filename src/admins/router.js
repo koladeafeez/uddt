@@ -272,4 +272,15 @@ router.get( "/dashboard/getAllVehiclePendingApprovalCount",[auth, accessControl.
 
    router.get("/users/all",[auth,accessControl.isAdmin],adminService.getAllUSers);
 
+
+
+/* =====================================================================
+                    Super Admin
+   ===================================================================== */
+
+
+router.get("/super/dashboard",[auth,accessControl.isSuperAdmin],adminService.getSuperAdminFullDashboard);
+
+router.post( "/createAdmin", [auth, accessControl.isSuperAdmin], adminService.createAdmin );
+
 module.exports = router;

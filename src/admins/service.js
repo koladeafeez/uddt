@@ -1094,7 +1094,32 @@ getAdminFullDashboard : async(req, res) => {
     return responseMessage.success("Dashboard Counts", response,res);
 
 
+},
+
+
+// SUper Admin
+
+getSuperAdminFullDashboard : async(req, res) => {
+
+    const customers = await Customer.countDocuments({password: {$ne: null}}).exec();
+    const carOwners = await CarOwner.countDocuments({password: {$ne: null}}).exec();
+    const drivers =  await Driver.countDocuments({ isApproved: true }).exec();
+    const admins = await Admin.countDocuments({ isEmailVerified : true, isDeleted : false}).exec();
+
+
+    var response = {
+     "admins": admins,
+     "drivers" : drivers,
+     "carOwners":  carOwners,
+     "passengers" : customers,
+     "totalUser": admins + drivers + carOwners + customers
+    };
+
+    return responseMessage.success("Dashboard Counts", response,res);
+
+
 }
+
 
 };
 
