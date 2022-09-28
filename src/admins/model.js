@@ -22,7 +22,7 @@ adminSchema = new Schema({
     role: { type: String, default: 'Admin' },
     needsPasswordReset: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
-    accountStatus: { type: String, default: "Active", enum: [ "Active", "Deactivate", "Suspended" ] }
+    accountStatus: { type: String, default: "Active", enum: [ "Active", "Deactivated", "Suspended" ] }
 
 }, { timestamps: true });
 

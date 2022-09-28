@@ -41,5 +41,12 @@ module.exports = {
         const superAdmin = await Admin.find({id: req.user._id, role: 'Super Admin', isDeleted: false});
         if (!superAdmin) return responseMessage.forbidden('Access denied', res);
         next();
-    }
+    },
+    isAdminOrSuperAdmin: async (req, res, next) => {
+        const admin = await Admin.findById(req.user._id),
+        superAdmin = await Admin.find({id: req.user._id, role: 'Super Admin', isDeleted: false});
+    
+        if (!admin && !superAdmin) return responseMessage.forbidden('Access denied', res);
+        next();
+    },
 };

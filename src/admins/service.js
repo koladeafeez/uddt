@@ -1105,6 +1105,7 @@ getSuperAdminFullDashboard : async(req, res) => {
     const carOwners = await CarOwner.countDocuments({password: {$ne: null}}).exec();
     const drivers =  await Driver.countDocuments({ isApproved: true }).exec();
     const admins = await Admin.countDocuments({ isEmailVerified : true, isDeleted : false}).exec();
+    const vehicles = await Vehicle.countDocuments({isDeleted : false}).exec();
 
 
     var response = {
@@ -1112,10 +1113,96 @@ getSuperAdminFullDashboard : async(req, res) => {
      "drivers" : drivers,
      "carOwners":  carOwners,
      "passengers" : customers,
-     "totalUser": admins + drivers + carOwners + customers
+     "totalUser": admins + drivers + carOwners + customers,
+     "vehicles": vehicles
     };
 
     return responseMessage.success("Dashboard Counts", response,res);
+
+
+},
+
+activateOrDeactivateAdmin: async (req, res) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.adminId)) return responseMessage.notFound('Invalid admin.', res);
+
+    const admin = await Admin.findById(req.params.adminId).select(variables.adminDetails);
+    if(!admin) return responseMessage.notFound('Invalid admin', res);
+
+    if(req.body.action == null ||req.body.action == undefined)
+     return responseMessage.badRequest('action is requird', res);
+
+    if(req.body.action != "activate")
+    {
+     if(req.body.action != "deactivate")
+        return responseMessage.notFound('Invalid action type', res); 
+    }
+
+    if(req.body.action == "activate")
+       admin.accountStatus = "Active";
+    else
+    admin.accountStatus = "Deactivated"; 
+    
+    await admin.save();
+
+    
+    return responseMessage.success(`User was ${req.body.action} successfully .`, admin, res);
+},
+
+
+getUserGrowth : async (req, res) => {
+
+    if(req.query.totalMonth == null || req.query.totalMonth == undefined)
+        return responseMessage.badRequest("totalMonth is required", res);
+
+        var month = parseInt(req.query.totalMonth);
+
+        if(!Number.isInteger(month) || month > 12)
+         return responseMessage.badRequest("totalMonth must be integer and less than 12");
+
+         var result = [];
+
+    for(var i = 1; i <= month; i++)
+    {
+
+
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - i);
+
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() - (i - 1));
+
+
+    const customers = await Customer.countDocuments({password: {$ne: null},
+    createdAt: {
+    $gte: startDate, 
+    $lt: endDate
+    }
+    }).exec();
+    const carOwners = await CarOwner.countDocuments({password: {$ne: null},
+    createdAt: {
+    $gte: startDate, 
+    $lt: endDate
+    }
+    }).exec();
+    const drivers =  await Driver.countDocuments({ isApproved: true,
+    createdAt: {
+    $gte: startDate, 
+    $lt: endDate
+    }
+    }).exec();
+
+
+    var data = {
+        "users": carOwners + drivers + customers,
+        "date": startDate 
+    };
+
+    result.push(data);
+
+    }
+
+    return responseMessage.success("Displaying UserGrowths",result,res);
+
 
 
 }

@@ -60,7 +60,7 @@ router.put( "/currency/:currencyId", [auth, accessControl.isAdmin], adminService
    ===================================================================== */
 
 // create Admin
-router.post( "/createAdmin", [auth, accessControl.isSuperAdmin], adminService.createAdmin );
+router.post( "/createAdmin",[auth, accessControl.isSuperAdmin], adminService.createAdmin );
 
 // fetch all Admins
 router.get("/", [auth, accessControl.isSuperAdmin], adminService.getAllAdmins);
@@ -73,6 +73,11 @@ router.put( "/updateRole/:adminId", [auth, accessControl.isSuperAdmin], adminSer
 
 // delete admin
 router.delete( "/delete/:adminId", [auth, accessControl.isSuperAdmin], adminService.delete );
+
+// Activate or Deactivate
+
+router.put( "/activateOrDeactivate/:adminId", adminService.activateOrDeactivateAdmin );
+
 
 //user login
 router.post("/login", adminService.login);
@@ -279,8 +284,9 @@ router.get( "/dashboard/getAllVehiclePendingApprovalCount",[auth, accessControl.
    ===================================================================== */
 
 
-router.get("/super/dashboard",[auth,accessControl.isSuperAdmin],adminService.getSuperAdminFullDashboard);
+router.get("/super/dashboard",[auth,accessControl.isAdminOrSuperAdmin],adminService.getSuperAdminFullDashboard);
 
-router.post( "/createAdmin", [auth, accessControl.isSuperAdmin], adminService.createAdmin );
+router.get("/super/dashboard/userGrowth",[auth, accessControl.isAdminOrSuperAdmin], adminService.getUserGrowth );
+
 
 module.exports = router;
