@@ -288,5 +288,10 @@ router.get("/super/dashboard",[auth,accessControl.isAdminOrSuperAdmin],adminServ
 
 router.get("/super/dashboard/userGrowth",[auth, accessControl.isAdminOrSuperAdmin], adminService.getUserGrowth );
 
+router.get("/super/dashboard/revenueGrowth",[auth, accessControl.isAdmin], adminService.getIncomeGrowth);
+
+
+router.get("/rides/incomeOverview",[auth, accessControl.isAdmin], adminService.getIncomeOverview);
+
 
 module.exports = router;

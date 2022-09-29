@@ -1205,7 +1205,205 @@ getUserGrowth : async (req, res) => {
 
 
 
+},
+
+// InCOME OVERVIEW
+
+getIncomeOverview : async (req, res) => {
+
+    var todaysDate =new Date();
+    todaysDate.setUTCHours(0,0,0,0);
+    var firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    var last12Month =  new Date();
+    last12Month.setMonth(last12Month.getMonth() - 12);
+
+
+    var todaysIncome = await RideRequest.aggregate([ { $match: { paymentStatus: "Paid",trip_status :"Ended",
+    createdAt: {
+            $gte: todaysDate
+        }
+} },
+     { $group: { _id: null, TotalSum: { $sum: "$final_amount" } } } ]);
+
+
+
+     var thisMonth = await RideRequest.aggregate([ { $match: { paymentStatus: "Paid",trip_status :"Ended",
+     createdAt: {
+             $gte: firstDay, 
+             $lt: new Date()
+         }
+ } },
+      { $group: { _id: null, TotalSum: { $sum: "$final_amount" } } } ]);
+
+
+
+      var last12Month = await RideRequest.aggregate([ { $match: { paymentStatus: "Paid",trip_status :"Ended",
+      createdAt: {
+              $gte: last12Month, 
+              $lt: new Date()
+          }
+  } },
+       { $group: { _id: null, TotalSum: { $sum: "$final_amount" } } } ]);
+
+
+       var allTime = await RideRequest.aggregate([ { $match: { paymentStatus: "Paid",trip_status :"Ended"} },
+        { $group: { _id: null, TotalSum: { $sum: "$final_amount" } } } ]);
+ 
+
+
+
+var topEarnerVehicleOwnerList = [];
+        var topEarners1 = await RideRequest.aggregate([
+            { $match: { paymentStatus: "Paid",trip_status :"Ended"} },
+            { $group: {
+                _id : '$vehicle_plate_number',
+                totalSum: {$sum: '$final_amount'}
+                } 
+            },
+            { $limit: 6 }
+        ]);
+
+
+    if(topEarners1 != null && topEarners1.length > 0)
+    {
+        for(var i = 0; i < topEarners1.length; i++)
+        {
+            var carOwner =await Vehicle.findOne({plate_number : topEarners1[i]._id}).populate('ownerId', ['firstName', 'lastName','email']);
+
+            
+            if(carOwner != null)
+            {
+                topEarners1[i].firstName = carOwner.ownerId.firstName;
+                topEarners1[i].lastName = carOwner.ownerId.lastName;
+                topEarners1[i].email = carOwner.ownerId.email;
+                topEarnerVehicleOwnerList.push(topEarners1[i]);
+            }
+        };
+    }
+
+    var topEarnerDriverList = [];
+    var topEarners2 = await RideRequest.aggregate([
+        { $match: { paymentStatus: "Paid",trip_status :"Ended"} },
+        { $group: {
+            _id : '$driverId',
+            totalSum: {$sum: '$final_amount'}
+            } 
+        },
+        { $limit: 6 }
+    ]);
+
+
+if(topEarners2 != null && topEarners2.length > 0)
+{
+    for(var i = 0; i < topEarners2.length; i++)
+    {
+        var driver =await Driver.findOne({_id : topEarners2[i]._id});
+
+        
+        if(driver != null)
+        {
+            topEarners2[i].firstName = driver.firstName;
+            topEarners2[i].lastName = driver.lastName;
+            topEarners2[i].email = driver.email;
+            topEarnerDriverList.push(topEarners2[i]);
+        }
+    };
 }
+
+
+    var result = {
+        "today": todaysIncome == null || todaysIncome[0] == undefined ? 0 : todaysIncome[0].TotalSum,
+        "thisMonth": thisMonth == null || thisMonth[0] == undefined ? 0 : thisMonth[0].TotalSum,
+        "last12Month": last12Month == null || last12Month[0] == undefined ? 0 : last12Month[0].TotalSum,
+        "allTime": allTime == null || allTime[0] == undefined ? 0 : allTime[0].TotalSum,
+        "topEarnerVehicleOwner": topEarnerVehicleOwnerList,
+        "topEarnerDriverList": topEarnerDriverList
+    
+    };
+
+     return responseMessage.success("Displaying All Income Dashboard", result, res);
+
+
+},
+
+getIncomeGrowth : async (req, res) => {
+
+    if(req.query.totalMonth == null || req.query.totalMonth == undefined)
+        return responseMessage.badRequest("totalMonth is required", res);
+
+        var month = parseInt(req.query.totalMonth);
+
+        if(!Number.isInteger(month) || month > 12)
+         return responseMessage.badRequest("totalMonth must be integer and less than 12");
+
+         var result = [];
+
+    for(var i = 1; i <= month; i++)
+    {
+
+
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - i);
+
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() - (i - 1));
+
+    var income = await RideRequest.aggregate([ { $match: { paymentStatus: "Paid",trip_status :"Ended",
+    createdAt: {
+            $gte: startDate, 
+            $lt: endDate
+        }
+        } },
+     { $group: { _id: null, TotalSum: { $sum: "$final_amount" } } } ]);
+
+
+
+    var data = {
+        "revenue": (income == null || income.length == 0|| income[0].TotalSum == undefined )? 0 : income[0].TotalSum,
+        "date": startDate 
+    };
+
+    result.push(data);
+
+    }
+
+
+    var totalRevenue =  result.reduce((accumulator, object) => {
+        return accumulator + object.revenue;
+      }, 0);
+
+    var dataCount = result.length == 0 ? 1 : result.length;  
+
+    var averageRevenue = totalRevenue / dataCount;
+
+    var firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    var thisMonth = await RideRequest.aggregate([ { $match: { paymentStatus: "Paid",trip_status :"Ended",
+    createdAt: {
+            $gte: firstDay, 
+            $lt: new Date()
+        }
+        } },
+     { $group: { _id: null, TotalSum: { $sum: "$final_amount" } } } ]);
+
+
+     var currentMonthRevenue =  (thisMonth == null || thisMonth[0] == undefined) ? 0 : thisMonth[0].TotalSum;
+
+
+
+     var resultData = {
+      "monthlyIncome": result,
+      "totalRevenue": totalRevenue,
+      "currentMonthRevenue": currentMonthRevenue,
+      "averageRevenue": averageRevenue
+     };
+
+
+    return responseMessage.success("Displaying Revenue Growths",resultData,res);
+
+
+
+},
 
 
 };
