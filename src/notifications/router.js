@@ -5,8 +5,9 @@ const express = require('express'),
 accessControl = require('../middlewares/accessControl');
 
 // create
-router.post( '/createByAdmin',[ auth, accessControl.isCarOwner], notifyService.createByAdmin );
+router.post( '/createByAdmin',[ auth, accessControl.isAdmin], notifyService.createByAdmin );
 
+router.post( '/createBySuperAdmin',[ auth, accessControl.isSuperAdmin], notifyService.createBySuperAdmin );
 
 
 //Fetch All recent Notificatons for carOwner

@@ -216,6 +216,14 @@ router.get( "/accounts/carOwners/flagged", [auth, accessControl.isSuperAdmin], a
 // flag carOwner
 router.put( "/accounts/carOwners/suspendOrActivateAccount/:carOwnerId", [auth, accessControl.isSuperAdmin], accountManagementService.activateOrSuspendCarOwner );
 
+// activate or suspend
+
+router.put( "/accounts/customers/activateOrSuspendAccount/:customerId", [auth, accessControl.isAdmin], accountManagementService.activateOrDeactivatePassengers );
+
+router.put( "/accounts/drivers/activateOrSuspendAccount/:driverId", [auth, accessControl.isAdmin], accountManagementService.activateOrDeactivateDrivers );
+
+router.put( "/accounts/carOwners/activateOrSuspendAccount/:carOwnerId", [auth, accessControl.isAdmin], accountManagementService.activateOrDeactivateCarOwner );
+
 
 //Dashboard
 

@@ -157,6 +157,78 @@ module.exports = {
 
         const data = _.pick(carOwner, variables.carOwnerDetails);
         return responseMessages.success(`CarOwner ${req.body.status}.`, data, res);
+    },
+
+    activateOrDeactivatePassengers : async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.customerId)) return responseMessage.notFound('Invalid customer.', res);
+    
+        const { error } = validate.setAccountStatus(req.body);
+        if(error) return responseMessages.badRequest(error.details[0].message, res);
+
+    
+        const customer = await Customer.findById(req.params.customerId);
+        if(!customer) return responseMessages.notFound('Invalid customer', res)
+    
+  
+            customer.accountStatus = req.body.status;
+
+        activityLogger('customer', customer._id, req.user._id, req.body.status, req.body.comment, CustomerAccountActivity);
+
+        await customer.save();
+        const data = _.pick(customer, variables.customerDetails);
+        return responseMessages.success(`User status was changed to ${req.body.status} successfully .`, data, res);
+    
+    
+    },
+    
+    activateOrDeactivateDrivers : async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.driverId)) return responseMessage.notFound('Invalid driver.', res);
+    
+        const { error } = validate.setAccountStatus(req.body);
+        if(error) return responseMessages.badRequest(error.details[0].message, res);
+
+    
+        const driver = await Driver.findById(req.params.driverId);
+        if(!driver) return responseMessages.notFound('Invalid driver', res)
+    
+    
+  
+            driver.accountStatus = req.body.status;
+    
+
+        activityLogger('driver', driver._id, req.user._id, req.body.status, req.body.comment, DriverAccountActivity);
+
+
+        await driver.save();
+        const data = _.pick(driver, variables.driverDetails);
+        return responseMessages.success(`User status was changed to ${req.body.status} successfully .`, data, res);
+    
+    
+    },
+    
+    activateOrDeactivateCarOwner : async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.carOwnerId)) return responseMessage.notFound('Invalid carOwnerId.', res);
+    
+        const { error } = validate.setAccountStatus(req.body);
+        if(error) return responseMessages.badRequest(error.details[0].message, res);
+
+    
+        const carOwner = await CarOwner.findById(req.params.carOwnerId);
+        if(!carOwner) return responseMessages.notFound('Invalid carOwner', res)
+    
+    
+
+            carOwner.accountStatus = req.body.status;
+    
+
+        activityLogger('carOwner', carOwner._id, req.user._id, req.body.status, req.body.comment, CarOwnerAccountActivity);
+
+
+        await carOwner.save();
+        const data = _.pick(carOwner, variables.carOwnerDetails);
+        return responseMessages.success(`User status was changed to ${req.body.status} successfully .`, data, res);
+    
+    
     }
 };
 
