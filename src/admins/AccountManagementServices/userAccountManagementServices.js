@@ -29,7 +29,7 @@ module.exports = {
         await customer.save();
         
         // log this activity
-        activityLogger('customer', customer._id, req.user._id, req.body.status, req.body.comment, CustomerAccountActivity);
+        activityLogger('customer', customer._id, req.user._id, req.body.status, req.body.message, CustomerAccountActivity);
 
         const data = _.pick(customer, variables.customerDetails);
         return responseMessages.success('Customer flagged successfully.', data, res);
@@ -57,7 +57,7 @@ module.exports = {
         await customer.save();
         
         // log this activity
-        activityLogger('customer', customer._id, req.user._id, req.body.status, req.body.comment, CustomerAccountActivity);
+        activityLogger('customer', customer._id, req.user._id, req.body.status, req.body.message, CustomerAccountActivity);
 
         const data = _.pick(customer, variables.customerDetails);
         return responseMessages.success(`Customer ${req.body.status}.`, data, res);
@@ -77,7 +77,7 @@ module.exports = {
         await driver.save();
         
         // log this activity
-        activityLogger('driver', driver._id, req.user._id, req.body.status, req.body.comment, DriverAccountActivity);
+        activityLogger('driver', driver._id, req.user._id, req.body.status, req.body.message, DriverAccountActivity);
 
         const data = _.pick(driver, variables.driverDetails);
         return responseMessages.success('Driver flagged successfully.', data, res);
@@ -105,7 +105,7 @@ module.exports = {
         await driver.save();
         
         // log this activity
-        activityLogger('driver', driver._id, req.user._id, req.body.status, req.body.comment, DriverAccountActivity);
+        activityLogger('driver', driver._id, req.user._id, req.body.status, req.body.message, DriverAccountActivity);
 
         const data = _.pick(driver, variables.driverDetails);
         return responseMessages.success(`Driver ${req.body.status}.`, data, res);
@@ -125,7 +125,7 @@ module.exports = {
         await carOwner.save();
         
         // log this activity
-        activityLogger('carOwner', carOwner._id, req.user._id, req.body.status, req.body.comment, CarOwnerAccountActivity);
+        activityLogger('carOwner', carOwner._id, req.user._id, req.body.status, req.body.message, CarOwnerAccountActivity);
 
         const data = _.pick(carOwner, variables.carOwnerDetails);
         return responseMessages.success('CarOwner flagged successfully.', data, res);
@@ -153,7 +153,7 @@ module.exports = {
         await carOwner.save();
 
         // log this activity
-        activityLogger('carOwner', carOwner._id, req.user._id, req.body.status, req.body.comment, CarOwnerAccountActivity);
+        activityLogger('carOwner', carOwner._id, req.user._id, req.body.status, req.body.message, CarOwnerAccountActivity);
 
         const data = _.pick(carOwner, variables.carOwnerDetails);
         return responseMessages.success(`CarOwner ${req.body.status}.`, data, res);
@@ -172,7 +172,7 @@ module.exports = {
   
             customer.accountStatus = req.body.status;
 
-        activityLogger('customer', customer._id, req.user._id, req.body.status, req.body.comment, CustomerAccountActivity);
+        activityLogger('customer', customer._id, req.user._id, req.body.status, req.body.message, CustomerAccountActivity);
 
         await customer.save();
         const data = _.pick(customer, variables.customerDetails);
@@ -196,7 +196,7 @@ module.exports = {
             driver.accountStatus = req.body.status;
     
 
-        activityLogger('driver', driver._id, req.user._id, req.body.status, req.body.comment, DriverAccountActivity);
+        activityLogger('driver', driver._id, req.user._id, req.body.status, req.body.message, DriverAccountActivity);
 
 
         await driver.save();
@@ -221,7 +221,7 @@ module.exports = {
             carOwner.accountStatus = req.body.status;
     
 
-        activityLogger('carOwner', carOwner._id, req.user._id, req.body.status, req.body.comment, CarOwnerAccountActivity);
+        activityLogger('carOwner', carOwner._id, req.user._id, req.body.status, req.body.message, CarOwnerAccountActivity);
 
 
         await carOwner.save();

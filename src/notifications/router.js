@@ -24,11 +24,12 @@ router.get('/fetchAllForAdmin',[auth,accessControl.isAdmin],notifyService.fetchF
 
 //get single
 
-router.get('/single/:id',notifyService.get);
+router.get('/single/:id',[auth],notifyService.get);
 
 
-router.post('/readNotifications',notifyService.readNotifications);
+router.put('/readNotifications',[auth],notifyService.readNotifications);
 
+router.delete('/deleteNotifications',[auth], notifyService.deleteNotifications);
 
 
 

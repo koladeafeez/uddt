@@ -75,6 +75,9 @@ readNotifications : async(req,res) => {
     return responseMessage.created("Notification(s) Updated",true, res);
 },
 
+
+
+
 deleteNotifications : async(req,res) => {
     
     if(req.body.ids == null || req.body.ids.length == 0) return responseMessage.badRequest("Input Valid Id(s) In request", res );
