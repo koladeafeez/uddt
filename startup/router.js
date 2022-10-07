@@ -8,7 +8,8 @@ const express = require('express'),
     rideRequestRouter = require('../src/rideRequests/router'),
 vehicleTypesRouter = require('../src/vehicleTypes/router'),
 faqRouter = require('../src/faqs/router'),
-notifyRouter = require('../src/notifications/router');
+notifyRouter = require('../src/notifications/router'),
+deliveryRouter = require('../src/deliveries/router');
 
 module.exports = function (app) {
     app.use(express.json({ limit:"5mb" }));
@@ -27,4 +28,5 @@ module.exports = function (app) {
     app.use('/api_v1/vehicleTypes', vehicleTypesRouter);
     app.use('/api_v1/faqs', faqRouter);
     app.use('/api_v1/notifications', notifyRouter);
+    app.use('/api_v1/deliveries', deliveryRouter);
 };

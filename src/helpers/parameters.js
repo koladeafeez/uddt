@@ -166,7 +166,73 @@ const customerDetails = [
   "trip_started_at",
   "trip_ended_at",
   "rideOrderId"
- ];
+ ],
+ //delivery requests
+ deliveryRequestFullDetails = [
+  "id",
+  "deliveryOrderId",
+  "pickup_coordinates",
+  "destination_coordinates",
+  "pickup_location",
+  "pickup_latitude",
+  "pickup_longitude",
+  "destination",
+  "destination_latitude",
+  "destination_longitude",
+  "vehicleTypeId",
+  "calculated_distance",
+  "final_distance",
+  "calculated_duration",
+  "final_duration",
+  "calculated_amount",
+  "final_amount",
+  "paymentStatus",
+  "trip_start_at",
+  "trip_status",
+  "modeOfPayment",
+  "currency",
+  "isPaymentConfirmed",
+  "payment_confirmed_at",
+  "driverId",
+  "vehicle_plate_number",
+  "createdAt",
+  "recipientFullName",
+  "recipientPhoneNumber",
+  "categoryId",
+  "item",
+  "estimatedCost",
+  "quantity",
+  "weight",
+  "itemImage"
+],
+deliveryRequestDetails = [
+  "id",
+  "deliveryOrderId",
+  "pickup_location",
+  "pickup_coordinates",
+  "destination",
+  "destination_coordinates",
+  "vehicleTypeId",
+  "calculated_distance",
+  "final_distance",
+  "calculated_duration",
+  "final_duration",
+  "calculated_amount",
+  "final_amount",
+  "currency",
+  "paymentStatus",
+  "modeOfPayment",
+  "trip_start_at",
+  "trip_status",
+  "driverId",
+  "customerId",
+  "createdAt",
+  "vehicleId",
+  "trip_started_at",
+  "trip_ended_at"
+];
+
+
 
 
 module.exports = {
@@ -182,5 +248,7 @@ module.exports = {
   currencyShortDetails,
   notification,
   adminViewDetails,
-  customerPreviousRideAdminView
+  customerPreviousRideAdminView,
+  deliveryRequestFullDetails,
+  deliveryRequestDetails
 };

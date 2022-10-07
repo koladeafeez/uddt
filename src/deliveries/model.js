@@ -6,14 +6,14 @@ deliverySchema = new Schema({
     deliveryOrderId: {
         type: String, trim: true, index: {
             unique: true,
-            partialFilterExpression: { rideOrderId: { $type: "string" } }
+            partialFilterExpression: { deliveryOrderId: { $type: "string" } }
         }
     },
     pickup_coordinates: { type: Point, index: '2dsphere', required: true},    // longitude first i.e. [longitude, latitude]
     destination_coordinates: { type: Point, index: '2dsphere', required: true},   // longitude first i.e. [longitude, latitude]
     pickup_location: { type: String, required: true },
     destination: { type: String, required: true },
-    vehicleTypeId: { type: mongoose.Schema.Types.ObjectId,  ref: "VehicleType", index: true, required: true },
+    vehicleTypeId: { type: mongoose.Schema.Types.ObjectId,  ref: "VehicleType", index: true },
     calculated_distance: String,
     calculated_raw_distance: Number, // in meters
     final_distance: String,
@@ -37,9 +37,18 @@ deliverySchema = new Schema({
     vehicleId: { type: mongoose.Schema.Types.ObjectId,  ref: "Vehicle", index: true },
     customerId: { type: mongoose.Schema.Types.ObjectId,  ref: "Customer", index: true, required: true }, 
     tripEndedBy: { type: mongoose.Schema.Types.ObjectId,  ref: "Admin", index: true },  
+    recipientFullName : { type: String, required : true},
+    recipientPhoneNumber : { type: String, required : true},
+    item : { type: String, required : true},
+    estimatedCost : Number,
+    quantity : Number,
+    weight: Number,
+    itemImage : { type: String, required : true},
+    //estimatedDimension : joi.array().required(),
+    itemCategory :  { type: String, default: "small/medium", enum: [ "small/medium", "large", "heavyWeight" ] },
 }, { timestamps: true }),
 
-DeliveryRequest = mongoose.model('DeliveryRequest', deliveryRequestSchema);
+DeliveryRequest = mongoose.model('DeliveryRequest', deliverySchema);
 
 
 

@@ -18,6 +18,8 @@ vehicleTypeSchema = new Schema({
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date,
     deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", index: true },
+    loadCapacity :  Number,
+    loadClassification : { type: String, default: "large", enum: [ "small/medium", "large", "heavyWeight" ] }
 }, { timestamps: true }),
 
 VehicleType = mongoose.model('VehicleType', vehicleTypeSchema);

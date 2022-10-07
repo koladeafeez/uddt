@@ -15,6 +15,8 @@ function create(vehicleType) {
         picture: Joi.string().required(),
         vehicle_type: Joi.string().required(),
         base_charge: Joi.number().required(),
+        loadClassification : Joi.string().valid("small/medium", "large", "heavyWeight").required(),
+        loadCapacity : Joi.number().required()
     });
   
     return schema.validate(vehicleType);
@@ -23,7 +25,9 @@ function create(vehicleType) {
 function update(vehicleType) {
     const schema = Joi.object().keys({
         vehicle_type: Joi.string().required(),
-        base_charge: Joi.number().required()
+        base_charge: Joi.number().required(),
+        loadClassification : Joi.string().valid("small/medium", "large", "heavyWeight").required(),
+        loadCapacity : Joi.number().required()
     });
 
     return schema.validate(vehicleType);
