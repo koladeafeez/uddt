@@ -224,7 +224,7 @@ vehicle = {
     },
 
     fetchApprovedDriversWithoutVehicle: async (req, res) => {
-        const drivers = await Driver.find({isApproved: true, hasVehicleAssigned: false, isDeleted : false}).select(variables.driverDetails);
+        const drivers = await Driver.find({isApproved: true, hasVehicleAssigned: false}).select(variables.driverDetails);
         if(drivers.length == 0) return responseMessage.notFound('Sorry, no drivers found.', res);
 
         return responseMessage.success('Listing all available drivers', drivers, res);
@@ -235,7 +235,7 @@ vehicle = {
         let driver = await Driver.findOne({_id: req.params.driverId}).select(variables.driverDetails);
         if(!driver) return responseMessage.notFound('The driver does not exist.', res);
 
-        return responseMessage.success('driver retrieved sucessfully!', driver, res);
+        return responseMessage.success('driver retrieved successfully!', driver, res);
     }
 };
 

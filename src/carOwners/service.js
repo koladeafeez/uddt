@@ -175,7 +175,9 @@ module.exports = {
         vehicles.forEach( vehicle => { vehicleIds.push(vehicle.id); });
 
         // get drivers
-        const drivers = await Driver.find({vehicleId: {$in: vehicleIds}, hasVehicleAssigned : true}).select(variables.driverDetails);
+        const drivers = await Driver.find({vehicleId: {$in: vehicleIds}, hasVehicleAssigned : true})
+        .populate('vehicleId', ['plate_number', 'vehicle_name'])
+        .select(variables.driverDetails);
         if(drivers.length == 0) return responseMessage.notFound("No drivers found.", res);
 
         return responseMessage.success('Displaying all your drivers.', drivers, res);
