@@ -37,7 +37,7 @@ module.exports = {
         if(req.body.itemCategory == "small/medium")
         {
            // return bike and car
-          vehicleTypes = await VehicleType.find({loadCapacity: { $lte: 2500}}).sort({loadCapacity})
+          vehicleTypes = await VehicleType.find({loadCapacity:{$lte:2500}})
            .select(variables.vehicleTypeDetails).exec();
 
         }else if(req.body.itemCategory == "large")
@@ -140,10 +140,97 @@ module.exports = {
 
 
             const deliveryRequestData = _.pick(deliveryRequest, variables.deliveryRequestDetails);
-            return responseMessage.created( 'Ride request created!', deliveryRequestData, res );
+            return responseMessage.created( 'Delivery request created!', deliveryRequestData, res );
     },
     
+    fetchUserDeliveryRequests: async (req, res) => {
+        const rideRequests = await DeliveryRequest.find({ customerId: req.user._id }).select(variables.rideRequestDetails).sort({createdAt: -1});
+        if(rideRequests.length == 0 ) return responseMessage.notFound("You haven't made any delivery requests yet.", res);
 
+        return responseMessage.success("Listing a Deliveries ride requests", rideRequests, res);
+    },
+
+    fetchSingleDeliveryRequestDetails: async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.deliveryRequestId)) return responseMessage.notFound('Invalid delivery request.', res);
+        const deliveryRequest = await DeliveryRequest.findById(req.params.deliveryRequestId).select(variables.deliveryRequestDetails);
+
+        if(!deliveryRequest) return responseMessage.notFound('Delivery request not found.', res);
+        if(deliveryRequest.customerId != req.user._id) return responseMessage.forbidden('Unauthorized request.', res);
+
+        return responseMessage.success("Delivery request details.", deliveryRequest, res);
+    },
+
+    acceptDeliveryRequest: async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.deliveryRequestId)) return responseMessage.notFound('Invalid delivery request.', res);
+        const driver = await Driver.findById(req.user._id);
+        if(!driver.isApproved || !driver.hasVehicleAssigned || !driver.isOnline)
+            return responseMessage.unauthorized('Sorry, you are not eligible to accept this delivery request.', res);
+            
+        const deliveryRequest = await DeliveryRequest.findById(req.params.deliveryRequestId);
+        if(!deliveryRequest) return responseMessage.notFound('Invalid delivery request.', res);
+        if(deliveryRequest.driverId != null || deliveryRequest.driverId != undefined) return responseMessage.badRequest('Sorry, this delivery request is already taken.', res);
+        if(deliveryRequest.trip_status != 'Pending') return responseMessage.badRequest('Sorry, this delivery request is no longer active.', res);
+
+        const vehicle = await Vehicle.findOne({driverId: req.user._id, isDeleted: false}); 
+        if(!vehicle) return responseMessage.notFound("Sorry, you are not eligible to accept this delivery request.", res);
+
+        deliveryRequest.driverId = req.user._id;
+        deliveryRequest.vehicle_plate_number = vehicle.plate_number;
+        deliveryRequest.vehicleId = vehicle._id;
+        deliveryRequest.trip_status = 'Pending';
+        await deliveryRequest.save();
+
+        driver.isOnATrip = true;
+        await driver.save();
+
+        let customer = await Customer.findById(deliveryRequest.customerId); 
+        const  message = [], data = {};
+        
+        message.title = "A driver accepted your delivery request";
+        message.body = "Kindly wait for your driver's arrival.";
+
+        //get driver ETA (Estimated time of arrival) 
+        const matrixData = await helpers.getDistanceAndTime(driver.driver_coordinates, deliveryRequest.pickup_coordinates);
+
+        data.driverName = `${driver.firstName} ${driver.lastName}`;
+        data.vehiclePlateNumber = vehicle.plate_number;
+        data.vehicleModel = vehicle.vehicle_name;
+        data.driverPhone = driver.phone;
+        data.driverDistance = matrixData.distance;
+        data.driverETA = matrixData.duration;  // ETA is Estimated Time of Arrival 
+        data.driverId = req.user._id;
+
+        //send push notification
+        pushNotification.sendNotification(customer.deviceId, message, data);
+
+        customer = _.pick(customer,  ['firstName', 'lastName', 'firstName', 'profile_picture', 'phone']);
+        return responseMessage.success('Delivery request accepted successfully!.', customer, res);        
+    },
+
+    startDelivery: async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.deliveryRequestId)) return responseMessage.notFound('Invalid ride request.', res);
+        let deliveryRequest = await DeliveryRequest.findById(req.params.deliveryRequestId);
+        if(!deliveryRequest) return responseMessage.notFound('Invalid ride request.', res);
+        if(deliveryRequest.driverId != req.user._id) return responseMessage.forbidden('Forbidden.', res);
+        if(deliveryRequest.trip_status != 'Pending') return responseMessage.badRequest('You can not start this trip.', res);
+
+        deliveryRequest.trip_status = 'InProgress';
+        deliveryRequest.trip_started_at = Date.now();
+        deliveryRequest = await deliveryRequest.save();
+        deliveryRequest = _.pick(deliveryRequest, variables.deliveryRequestDetails);
+
+        // notify customer
+        const customer = await Customer.findById(deliveryRequest.customerId);
+        const message = {}, data = {};
+        data.tripStatus = deliveryRequest.trip_status;
+
+        message.title = "Your Delivery has started.";
+        message.body = "Delivery InProgress.";
+        //send push notification
+        pushNotification.sendNotification(customer.deviceId, message, data);
+
+        return responseMessage.success('Delivery Started and InProgress.', deliveryRequest, res);
+    },
     
 }
 

@@ -229,7 +229,14 @@ deliveryRequestDetails = [
   "createdAt",
   "vehicleId",
   "trip_started_at",
-  "trip_ended_at"
+  "trip_ended_at",
+  "recipientFullName",
+  "recipientPhoneNumber",
+  "item",
+  "estimatedCost",
+  "quantity",
+  "weight",
+  "itemCategory"
 ];
 
 

@@ -74,6 +74,7 @@ module.exports = {
 
     login: async (req, res) =>{
         const { error } = validate.login(req.body);
+
         if(error) return responseMessage.badRequest( error.details[0].message, res );
 
         let driver = await Driver.findOne({phone: req.body.phone});
