@@ -44,6 +44,7 @@ module.exports = {
         message.body = "Kindly click this notification bar to view and accept.";
 
         pushNotificationData.rideRequestId = rideRequest.id;
+        pushNotificationData.requestType = "ride";
         pushNotification.sendNotification(driverDeviceId, message, pushNotificationData);
 
         const rideRequestData = _.pick(rideRequest, variables.rideRequestDetails);

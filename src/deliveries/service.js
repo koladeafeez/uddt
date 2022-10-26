@@ -136,6 +136,7 @@ module.exports = {
             message.body = "Kindly click this notification bar to view and accept.";
     
             pushNotificationData.deliveryRequestId = deliveryRequest.id;
+            pushNotificationData.requestType = "delivery";
             pushNotification.sendNotification(driverDeviceId, message, pushNotificationData);
 
 
