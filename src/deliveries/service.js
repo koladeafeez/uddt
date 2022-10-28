@@ -43,13 +43,13 @@ module.exports = {
         }else if(req.body.itemCategory == "large")
         {
             // return car only
-             vehicleTypes = await VehicleType.find({loadCapacity: {  $gt : 1000,$lte: 2500}}).sort({loadCapacity})
+             vehicleTypes = await VehicleType.find({loadCapacity: {  $gt : 1000,$lte: 2500}})
             .select(variables.vehicleTypeDetails).exec();
 
         }else
         {
             // return car and truck
-             vehicleTypes = await VehicleType.find({loadCapacity: { $gte: 2500}}).sort({loadCapacity})
+             vehicleTypes = await VehicleType.find({loadCapacity: { $gte: 2500}})
             .select(variables.vehicleTypeDetails).exec();
         }
 
