@@ -23,7 +23,7 @@ router.put('/proceed/:deliveryOrderId',[ auth, accessControl.isCustomer ], deliv
 router.put( '/complete/:deliveryOrderId',[ auth, accessControl.isCustomer ], deliveryRequestService.completeDeliveryRequest );
 
 // fetch single delivery request details
-router.get( '/:deliveryRequestId', [ auth, accessControl.isDriverOrCustomer ], deliveryRequestService.fetchSingleDeliveryRequestDetails );
+router.get( '/:deliveryRequestId', [ auth, accessControl.isDriver ], deliveryRequestService.fetchSingleDeliveryRequestDetails );
 
 
 module.exports = router;

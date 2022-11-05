@@ -156,7 +156,7 @@ module.exports = {
         const deliveryRequest = await DeliveryRequest.findById(req.params.deliveryRequestId).select(variables.deliveryRequestDetails);
 
         if(!deliveryRequest) return responseMessage.notFound('Delivery request not found.', res);
-        if(deliveryRequest.customerId != req.user._id) return responseMessage.forbidden('Unauthorized request.', res);
+      //  if(deliveryRequest.customerId != req.user._id) return responseMessage.forbidden('Unauthorized request.', res);
 
         return responseMessage.success("Delivery request details.", deliveryRequest, res);
     },
