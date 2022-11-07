@@ -232,7 +232,65 @@ module.exports = {
 
         return responseMessage.success('Delivery Started and InProgress.', deliveryRequest, res);
     },
-    
+    endDelivery: async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.deliveryRequestId)) return responseMessage.notFound('Invalid delivery request.', res);
+        const deliveryRequest = await DeliveryRequest.findById(req.params.deliveryRequestId);
+        if(!deliveryRequest) return responseMessage.notFound('Invalid delivery request.', res);
+       // if(deliveryRequest.driverId != req.user._id) return responseMessage.forbidden('Forbidden.', res);  // if user is not the driver for the trip.
+        if(deliveryRequest.trip_status != 'InProgress') return responseMessage.badRequest('You can not end this delivery.', res);
+        
+        const currentTime = Date.now();
+        const timeMatrix = helpers.calculateFinalTripDuration(deliveryRequest.trip_started_at, currentTime);
+        const matrixData = await helpers.getDistanceAndTime(deliveryRequest.pickup_coordinates, req.body.driver_coordinate);
+
+        // make payment
+        const customer = await Customer.findById(deliveryRequest.customerId);
+        const tripAmount = await helpers.calculateTripAmount(matrixData.distanceValue, timeMatrix.durationValue, deliveryRequest.currency);
+        
+        let paymentWasMade = false;
+        if(deliveryRequest.modeOfPayment === 'Mpesa') {
+            const mpesaPayment = await paymentHandler.mpesa(customer.phone, tripAmount, deliveryRequest.currency);
+            if(mpesaPayment.status){
+                paymentWasMade = true;
+
+                deliveryRequest.paymentStatus = 'Paid';
+                deliveryRequest.isPaymentConfirmed = true;
+                deliveryRequest.payment_confirmed_at = Date.now();
+            }
+        }
+
+        if(deliveryRequest.modeOfPayment == 'Cash'){
+            paymentWasMade = true;
+
+            deliveryRequest.paymentStatus = 'Paid';
+            deliveryRequest.isPaymentConfirmed = true;
+            deliveryRequest.payment_confirmed_at = Date.now();
+        }
+        deliveryRequest.trip_status = 'Ended';
+        deliveryRequest.trip_ended_at = currentTime;
+        deliveryRequest.final_duration = timeMatrix.duration;
+        deliveryRequest.final_durationValue = timeMatrix.durationValue;
+        deliveryRequest.final_distanceValue = matrixData.distanceValue;
+        deliveryRequest.final_distance = matrixData.distance;
+        deliveryRequest.final_amount = tripAmount;
+        deliveryRequest.isPaymentConfirmed = false;
+        deliveryRequest.save();
+
+        const driver = await Driver.findById(deliveryRequest.driverId);
+        driver.isOnATrip = false;
+        await driver.save();
+
+        // notify customer
+        const message = {}, data = {};
+        data.deliveryRequestId = req.params.deliveryRequestId;
+        message.title = "Your delivery has ended.";
+        message.body = "Kindly click this notification to view details.";
+        pushNotification.sendNotification(customer.deviceId, message, data);
+
+        const rideRequestData = _.pick(deliveryRequest, variables.rideRequestDetails);
+        if(paymentWasMade) return responseMessage.success('Trip ended successfully. Have a nice day.', rideRequestData, res);
+        return responseMessage.partialContent('Could not make payment please try other payment method.', rideRequestData, res);
+    },
 }
 
 async function createDeliveryRequest(deliveryRequest, matrixData, req, currency, rideOrderId) {

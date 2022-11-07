@@ -17,6 +17,8 @@ router.put( '/drivers/accept/:deliveryRequestId', [ auth, accessControl.isDriver
 // Start Delivery
 router.put( '/drivers/startTrip/:deliveryRequestId', [ auth, accessControl.isDriver ], deliveryRequestService.startDelivery );
 
+router.put( '/drivers/endTrip/:deliveryRequestId', [ auth, accessControl.isDriver ], deliveryRequestService.endDelivery );
+
 
 router.put('/proceed/:deliveryOrderId',[ auth, accessControl.isCustomer ], deliveryRequestService.continueDeliveryRequest);
 
