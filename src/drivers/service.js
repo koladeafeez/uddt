@@ -211,4 +211,13 @@ module.exports = {
         data = _.pick(driver, variables.driverDetails);
         return responseMessage.success('Profile picture updated successfully!', data, res);
     },
+
+    getDriverDetails: async (req, res) => {
+        if (!mongoose.Types.ObjectId.isValid(req.params.driverId)) return responseMessage.notFound('Invalid driver.', res);
+
+        const driver = await Driver.findById(req.params.driverId).populate("Vehicles").select(variables.driverDetails);
+        if(!driver) return responseMessage.notFound('Invalid driver', res);
+
+        return responseMessage.success('Showing the details of the selected driver.', driver, res);
+    }
 };

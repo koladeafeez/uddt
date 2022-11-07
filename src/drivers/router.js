@@ -4,6 +4,9 @@ const express = require('express'),
     auth = require('../middlewares/auth'),
 accessControl = require('../middlewares/accessControl');
 
+
+router.get('/:driverId',[auth,accessControl.isCustomer ], driverService.getDriverDetails);
+
 // registration
 router.post( '/register', driverService.registration );
 
