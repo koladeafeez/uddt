@@ -42,7 +42,7 @@ deliverySchema = new Schema({
     item : { type: String, required : true},
     estimatedCost : Number,
     quantity : Number,
-    weight: Number,
+    weight: {type: String},
     itemImage : { type: String, required : true},
     //estimatedDimension : joi.array().required(),
     itemCategory :  { type: String, default: "small/medium", enum: [ "small/medium", "large", "heavyWeight" ] },

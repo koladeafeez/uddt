@@ -89,15 +89,18 @@ module.exports = {
         // Calculate Estimated price
          const matrixData = await helpers.getDistanceAndTime(deliveryRequest.pickup_coordinates, deliveryRequest.destination_coordinates);
    
-        const tripAmountDolar = await helpers.calculateTripAmount(matrixData.distanceValue, matrixData.durationValue, "USD");
-        const tripAmountInNaira = await helpers.calculateTripAmount(matrixData.distanceValue, matrixData.durationValue, "NGN");
+        //const tripAmountDolar = await helpers.calculateTripAmount(matrixData.distanceValue, matrixData.durationValue, "USD");
+        //const tripAmountInNaira = await helpers.calculateTripAmount(matrixData.distanceValue, matrixData.durationValue, "NGN");
 
-        var prices = [
-            {"EstimatedPrice":tripAmountDolar, "CurrencyType":"USD"},
-            {"EstimatedPrice":tripAmountInNaira, "CurrencyType":"NGN"}
-            ];
+        const tripAmount = await helpers.calculateTripAmount(matrixData.distanceValue, matrixData.durationValue, deliveryRequest.currency);
 
-            deliveryRequest.calculated_amount = tripAmountDolar;
+
+     //   var prices = [
+     //       {"EstimatedPrice":tripAmountDolar, "CurrencyType":"USD"},+
+     //       {"EstimatedPrice":tripAmountInNaira, "CurrencyType":"NGN"}
+     //       ];
+
+            deliveryRequest.estimatedCost = tripAmount;
     
             const deliveryRequestData = _.pick(deliveryRequest, variables.deliveryRequestDetails);
             return responseMessage.created( 'Delivery request in Progress!', deliveryRequestData, res );    
@@ -291,6 +294,60 @@ module.exports = {
         if(paymentWasMade) return responseMessage.success('Trip ended successfully. Have a nice day.', rideRequestData, res);
         return responseMessage.partialContent('Could not make payment please try other payment method.', rideRequestData, res);
     },
+
+    fetchUserDeliveryRequests: async (req, res) => {
+        const { page = 1, limit = 20 } = req.query;
+
+        try {
+        const deliveries = await DeliveryRequest.find({ customerId: req.user._id }).select(variables.deliveryRequestDetails).sort({createdAt: -1})
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await DeliveryRequest.find({ customerId: req.user._id }).countDocuments();
+
+        var data ={
+            deliveries,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+
+        return responseMessage.success("Listing a user's delivery requests", data, res);
+
+    } catch (err) {
+        
+        return responseMessage.internalServerError("An Error Occur While Fetching Deliveries");
+
+    }
+    },
+
+    fetchDriverDeliveryHistory: async (req, res) => {
+
+        const { page = 1, limit = 20 } = req.query;
+
+        try {
+        const deliveries = await DeliveryRequest.find({ driverId: req.user._id }).select(variables.deliveryRequestDetails).sort({createdAt: 'desc'})
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await DeliveryRequest.find({ driverId: req.user._id }).countDocuments();
+
+        var data ={
+            deliveries,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        };
+
+        return responseMessage.success("Showing a driver's delivery history", data, res);
+
+    } catch (err) {
+        
+        return responseMessage.internalServerError("An Error Occur While Fetching Deliveries");
+
+    }
+    },
+
 }
 
 async function createDeliveryRequest(deliveryRequest, matrixData, req, currency, rideOrderId) {

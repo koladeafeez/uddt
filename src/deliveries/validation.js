@@ -17,7 +17,7 @@ module.exports = {
       item : Joi.string().required(),
       estimatedCost : Joi.string().required(),
       quantity : Number,
-      weight: Number,
+      weight: Joi.string(),
       itemImage : Joi.string().required(),
       //estimatedDimension : joi.array().required(),
       itemCategory :  Joi.string().valid("small/medium", "large", "heavyWeight").required()

@@ -24,8 +24,19 @@ router.put('/proceed/:deliveryOrderId',[ auth, accessControl.isCustomer ], deliv
 
 router.put( '/complete/:deliveryOrderId',[ auth, accessControl.isCustomer ], deliveryRequestService.completeDeliveryRequest );
 
+
+// get a driver's trip history
+router.get( '/drivers/trips/history', [ auth, accessControl.isDriver ], deliveryRequestService.fetchDriverDeliveryHistory );
+
+
+//fetch all ride requests made by a customer
+router.get( '/customers', [ auth, accessControl.isCustomer ], deliveryRequestService.fetchUserDeliveryRequests );
+
+
 // fetch single delivery request details
 router.get( '/:deliveryRequestId', [ auth ], deliveryRequestService.fetchSingleDeliveryRequestDetails );
+
+
 
 
 module.exports = router;
