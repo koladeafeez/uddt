@@ -28,7 +28,7 @@ rideRequestSchema = new Schema({
     trip_started_at: Date,
     trip_ended_at: Date,
     trip_status: { type: String, default: "Pending", enum: [ "Pending", "InProgress", "Ended", "Cancelled" ] },
-    modeOfPayment: { type: String, default: "Cash", enum: ['Cash', 'Mpesa', 'Airtel Money', 'Orange'] },
+    modeOfPayment: { type: String, default: "Cash", enum: ['Cash', 'Card','Transfer'] },
     currency: String,
     isPaymentConfirmed: { type: Boolean, default: false },
     payment_confirmed_at: Date,
