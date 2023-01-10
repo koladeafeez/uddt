@@ -22,7 +22,7 @@ customerSchema = new Schema({
     lastName: String,
     country: String,
     profile_picture: String,
-    payment_mode: { type: Array, default: ["Cash"] },
+    payment_mode: { type: Array, default: ["Cash"]  },
     currency: String,
     otp: Number,
     otp_expires_on: Number,
